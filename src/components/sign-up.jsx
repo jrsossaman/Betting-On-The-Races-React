@@ -1,13 +1,14 @@
 import React, { useState } from "react";
+import { useRaceBetting } from "../context/race_betting_context";
 
 function SignUp() {
+    const { setUser, updateWallet } = useRaceBetting();
     const [form, setForm] = useState({
         name: '',
         username: '',
         password: '',
     });
-
-    const [wallet, setWallet] = useState(0);
+    const [signUpComplete, setSignUpComplete] = useState(false);
 
     const handleChange = (e) => {
         setForm({
@@ -27,63 +28,61 @@ function SignUp() {
             name: form.name,
             username: form.username,
             password: form.password,
-            wallet: wallet,
+            wallet: 1000, // Starting balance
         };
 
-        // const response = await fetch('https://unit-4-project-app-24d5eea30b23.herokuapp.com/post/data',
-        //     method = 'POST',
-        //     headers = {
-        //         'Content-Type': application/JSON
-        //     },
-        //     body = JSON.stringify(newUser),
-        // )};
+        // Update context with user data
+        setUser(newUser);
+        updateWallet(1000); // Initialize wallet with $1000
 
-        // if (!response.ok) {
-        //     throw new Error('Failed to create new user.')
-        // }
-        // const data = response.json();
-        // console.log('Profile created.', data);
-        alert('Sign-up successful.')
+        alert(`Welcome ${form.name}! You've been given $1000 to start betting!`);
+        
+        setForm({ name: '', username: '', password: '' });
+        setSignUpComplete(true);
 
-            setForm({name: '', username: '', password: ''});
-            setWallet(0);
+        // Reset message after 3 seconds
+        setTimeout(() => setSignUpComplete(false), 3000);
+    };
 
     return (
-        <form onSubmit={handleSignUp}>
-            <div>
-                <label>Name:</label>
-                <input
-                type="text"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                required
-                />
-            </div>
-            <div>
-                <label>Username:</label>
-                <input
-                type="text"
-                username="username"
-                value={form.username}
-                onChange={handleChange}
-                required
-                />
-            </div>
-            <div>
-                <label>Password:</label>
-                <input
-                type="text"
-                password="password"
-                value={form.password}
-                onChange={handleChange}
-                required
-                />
-            </div>
-            <button type="submit">Create Profile</button>
-        </form>
+        <div className="signup-container">
+            <h2>Create Your Profile</h2>
+            {signUpComplete && <div className="success-message">✅ Profile created successfully!</div>}
+            <form onSubmit={handleSignUp}>
+                <div>
+                    <label>Name:</label>
+                    <input
+                        type="text"
+                        name="name"
+                        value={form.name}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Username:</label>
+                    <input
+                        type="text"
+                        name="username"
+                        value={form.username}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input
+                        type="password"
+                        name="password"
+                        value={form.password}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <button type="submit">Create Profile</button>
+            </form>
+        </div>
     );
-}
 }
 
 export default SignUp;

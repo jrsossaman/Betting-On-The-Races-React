@@ -1,17 +1,33 @@
-import React from 'react';
-import { RaceBettingProvider } from './context/race_betting_context';
+import React, { useEffect } from 'react';
+import { RaceBettingProvider, useRaceBetting } from './context/race_betting_context';
 import SignUp from './components/sign-up';
 import RunRace from './components/run_race';
+import driversData from './drivers.json';
+
+function AppContent() {
+    const { setDrivers } = useRaceBetting();
+
+    useEffect(() => {
+        // Load drivers from JSON file on component mount
+        if (driversData && driversData.body) {
+            setDrivers(driversData.body);
+        }
+    }, [setDrivers]);
+
+    return (
+        <div className='app container'>
+            <h1>🏎️ Betting on the Races!</h1>
+            <p>Create new profile or start racing</p>
+            <SignUp />
+            <RunRace />
+        </div>
+    );
+}
 
 function App() {
     return(
         <RaceBettingProvider>
-            <div className='app container'>
-                <h1>🏎️ Betting on the Races!</h1>
-                <p>Create new profile or start racing</p>
-                <SignUp />
-                <RunRace />
-            </div>
+            <AppContent />
         </RaceBettingProvider>
     );
 }

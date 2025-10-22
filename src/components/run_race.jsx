@@ -138,6 +138,12 @@ function RunRace() {
             
             <div className="wallet-display">
                 <h3>Your Wallet: ${wallet}</h3>
+                <button 
+                    onClick={() => updateWallet(100)}
+                    className="btn-add-funds"
+                >
+                    + Add $100
+                </button>
             </div>
 
             {error && <div className="error-message">{error}</div>}
