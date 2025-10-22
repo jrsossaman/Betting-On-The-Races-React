@@ -5,7 +5,7 @@ import RunRace from './components/run_race';
 import driversData from './drivers.json';
 
 function AppContent() {
-    const { setDrivers } = useRaceBetting();
+    const { setDrivers, user, setUser, wallet } = useRaceBetting();
 
     useEffect(() => {
         // Load drivers from JSON file on component mount
@@ -14,12 +14,32 @@ function AppContent() {
         }
     }, [setDrivers]);
 
+    const handleLogout = () => {
+        setUser(null);
+        if (window.confirm('Are you sure you want to logout?')) {
+            // Clear wallet and user data
+        }
+    };
+
     return (
         <div className='app container'>
-            <h1>🏎️ Betting on the Races!</h1>
-            <p>Create new profile or start racing</p>
-            <SignUp />
-            <RunRace />
+            <div className="header">
+                <h1>🏎️ Betting on the Races!</h1>
+                {user ? (
+                    <div className="user-info">
+                        <span>Welcome, <strong>{user.name}</strong>!</span>
+                        <button onClick={handleLogout} className="btn-logout">Logout</button>
+                    </div>
+                ) : (
+                    <p>Create new profile to get started</p>
+                )}
+            </div>
+
+            {!user ? (
+                <SignUp />
+            ) : (
+                <RunRace />
+            )}
         </div>
     );
 }

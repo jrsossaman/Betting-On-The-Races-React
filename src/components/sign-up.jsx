@@ -8,7 +8,6 @@ function SignUp() {
         username: '',
         password: '',
     });
-    const [signUpComplete, setSignUpComplete] = useState(false);
 
     const handleChange = (e) => {
         setForm({
@@ -38,16 +37,11 @@ function SignUp() {
         alert(`Welcome ${form.name}! You've been given $1000 to start betting!`);
         
         setForm({ name: '', username: '', password: '' });
-        setSignUpComplete(true);
-
-        // Reset message after 3 seconds
-        setTimeout(() => setSignUpComplete(false), 3000);
     };
 
     return (
         <div className="signup-container">
             <h2>Create Your Profile</h2>
-            {signUpComplete && <div className="success-message">✅ Profile created successfully!</div>}
             <form onSubmit={handleSignUp}>
                 <div>
                     <label>Name:</label>
