@@ -1,22 +1,59 @@
-import React from 'react';
-import { raceBettingContext } from './context/race_betting_context';
+import React, { useEffect } from 'react';
+import { RaceBettingProvider, useRaceBetting } from './context/race_betting_context';
 import SignUp from './components/sign-up';
-// import from left
+import RunRace from './components/run_race';
+import driversData from './drivers.json';
+
+function AppContent() {
+    const { setDrivers, user, setUser, setWallet } = useRaceBetting();
+
+    useEffect(() => {
+        // Load drivers from JSON file on component mount
+        if (driversData && driversData.body) {
+            setDrivers(driversData.body);
+        }
+    }, [setDrivers]);
+
+    const handleLogout = () => {
+        if (window.confirm('Are you sure you want to logout?')) {
+            setUser(null);
+            // Don't reset wallet here - it will be restored on next login
+        }
+    };
+
+    return (
+        <div className='app container'>
+            <div className="header">
+                <h1>🏎️ Betting on the Races!</h1>
+                {user ? (
+                    <div className="user-info">
+                        <span>Welcome, <strong>{user.name}</strong>!</span>
+                        <button onClick={handleLogout} className="btn-logout">Logout</button>
+                    </div>
+                ) : (
+                    <p>Create new profile to get started</p>
+                )}
+            </div>
+
+            {!user ? (
+                <SignUp />
+            ) : (
+                <RunRace />
+            )}
+        </div>
+    );
+}
 
 function App() {
     return(
-        <raceBettingContext>
-            <div className='app container'>
-                <h1>Betting on the Races!</h1>
-                <p>Create new profile</p>
-                <SignUp />
-            </div>
-        </raceBettingContext>
-        // main code goes here.
+        <RaceBettingProvider>
+            <AppContent />
+        </RaceBettingProvider>
     );
 }
 
 export default App;
+
 
 
 // import logo from './logo.svg';
