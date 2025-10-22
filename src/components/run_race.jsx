@@ -222,8 +222,7 @@ function RunRace() {
                             className={`bet-button ${betDriver?.number === selectedDriver1.number ? 'selected' : ''}`}
                             disabled={isRacing}
                         >
-                            <div>{selectedDriver1.name}</div>
-                            <div className="odds">Bet on {selectedDriver1.name}</div>
+                            {selectedDriver1.name}
                         </button>
                     )}
                     {selectedDriver2 && (
@@ -232,8 +231,7 @@ function RunRace() {
                             className={`bet-button ${betDriver?.number === selectedDriver2.number ? 'selected' : ''}`}
                             disabled={isRacing}
                         >
-                            <div>{selectedDriver2.name}</div>
-                            <div className="odds">Bet on {selectedDriver2.name}</div>
+                            {selectedDriver2.name}
                         </button>
                     )}
                 </div>
