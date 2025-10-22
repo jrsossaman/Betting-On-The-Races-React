@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useState} from "react";
+import React, {createContext, useContext, useState, useEffect} from "react";
 
 export const raceBettingContext = createContext();
 
@@ -10,34 +10,11 @@ export function RaceBettingProvider({ children }) {
     const [registeredUsers, setRegisteredUsers] = useState([]); // Store all registered users
 
     const updateWallet = (amount) => {
-        setWallet(prev => {
-            const newWallet = prev + amount;
-            // Update the logged-in user's wallet in registeredUsers
-            if (user) {
-                setRegisteredUsers(prevUsers =>
-                    prevUsers.map(u =>
-                        u.username === user.username
-                            ? { ...u, wallet: newWallet }
-                            : u
-                    )
-                );
-            }
-            return newWallet;
-        });
+        setWallet(prev => prev + amount);
     };
 
     const setWalletDirect = (amount) => {
         setWallet(amount);
-        // Update the logged-in user's wallet in registeredUsers
-        if (user) {
-            setRegisteredUsers(prevUsers =>
-                prevUsers.map(u =>
-                    u.username === user.username
-                        ? { ...u, wallet: amount }
-                        : u
-                )
-            );
-        }
     };
 
     const updateUserData = (userData) => {
@@ -47,6 +24,19 @@ export function RaceBettingProvider({ children }) {
     const addRaceResult = (result) => {
         setRaceHistory(prev => [...prev, result]);
     };
+
+    // Sync wallet changes to registered users
+    useEffect(() => {
+        if (user) {
+            setRegisteredUsers(prevUsers =>
+                prevUsers.map(u =>
+                    u.username === user.username
+                        ? { ...u, wallet: wallet }
+                        : u
+                )
+            );
+        }
+    }, [wallet, user]);
 
     const registerUser = (userCredentials) => {
         // Check if username already exists

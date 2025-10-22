@@ -17,7 +17,7 @@ function AppContent() {
     const handleLogout = () => {
         if (window.confirm('Are you sure you want to logout?')) {
             setUser(null);
-            setWallet(0);
+            // Don't reset wallet here - it will be restored on next login
         }
     };
 
