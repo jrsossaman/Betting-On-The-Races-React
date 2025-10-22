@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useRaceBetting } from "../context/race_betting_context";
 
 function SignUp() {
-    const { setUser, setWallet } = useRaceBetting();
+    const { setUser, setWallet, registerUser, loginUser } = useRaceBetting();
     const [isLogin, setIsLogin] = useState(false);
     const [form, setForm] = useState({
         name: '',
@@ -10,7 +10,6 @@ function SignUp() {
         password: '',
     });
     const [error, setError] = useState('');
-    const [users, setUsers] = useState([]); // Store registered users
 
     const handleChange = (e) => {
         setForm({
@@ -19,35 +18,33 @@ function SignUp() {
         });
     };
 
-    const handleSignUp = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
-        if (!form.name || !form.username || !form.password) {
-            setError('All fields are required.');
-            return;
-        }
-
         if (isLogin) {
-            // Login: Check if user exists
-            const existingUser = users.find(u => u.username === form.username);
-            if (!existingUser) {
-                setError('User not found. Please create a new profile.');
-                return;
-            }
-            if (existingUser.password !== form.password) {
-                setError('Incorrect password.');
+            // LOGIN MODE
+            if (!form.username || !form.password) {
+                setError('Username and password are required.');
                 return;
             }
 
-            // Login successful - restore user data
-            setUser(existingUser);
-            setWallet(existingUser.wallet);
-            alert(`Welcome back, ${existingUser.name}!`);
+            const result = loginUser(form.username, form.password);
+            if (!result.success) {
+                setError(result.message);
+                return;
+            }
+
+            // Login successful
+            const userData = result.user;
+            setUser(userData);
+            setWallet(userData.wallet);
+            alert(`Welcome back, ${userData.name}!`);
+            setForm({ name: '', username: '', password: '' });
         } else {
-            // Sign up: Check if user already exists
-            if (users.some(u => u.username === form.username)) {
-                setError('Username already taken. Please login or choose a different username.');
+            // SIGNUP MODE
+            if (!form.name || !form.username || !form.password) {
+                setError('All fields are required.');
                 return;
             }
 
@@ -55,19 +52,27 @@ function SignUp() {
                 name: form.name,
                 username: form.username,
                 password: form.password,
-                wallet: 1000, // Starting balance for new users
+                wallet: 1000,
             };
 
-            // Save user to list
-            setUsers([...users, newUser]);
+            const result = registerUser(newUser);
+            if (!result.success) {
+                setError(result.message);
+                return;
+            }
 
-            // Log in immediately
+            // Signup successful - log them in
             setUser(newUser);
             setWallet(1000);
             alert(`Welcome ${form.name}! You've been given $1000 to start betting!`);
+            setForm({ name: '', username: '', password: '' });
         }
+    };
 
+    const toggleMode = () => {
+        setIsLogin(!isLogin);
         setForm({ name: '', username: '', password: '' });
+        setError('');
     };
 
     return (
@@ -76,7 +81,7 @@ function SignUp() {
             
             {error && <div className="error-message">{error}</div>}
 
-            <form onSubmit={handleSignUp}>
+            <form onSubmit={handleSubmit}>
                 {!isLogin && (
                     <div>
                         <label>Name:</label>
@@ -86,7 +91,6 @@ function SignUp() {
                             value={form.name}
                             onChange={handleChange}
                             required={!isLogin}
-                            disabled={isLogin}
                             placeholder="Enter your name"
                         />
                     </div>
@@ -123,11 +127,7 @@ function SignUp() {
                     {isLogin ? "Don't have an account? " : "Already have an account? "}
                     <button 
                         type="button" 
-                        onClick={() => {
-                            setIsLogin(!isLogin);
-                            setForm({ name: '', username: '', password: '' });
-                            setError('');
-                        }}
+                        onClick={toggleMode}
                         className="toggle-button"
                     >
                         {isLogin ? 'Create Profile' : 'Login'}

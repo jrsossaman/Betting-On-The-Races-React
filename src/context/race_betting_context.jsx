@@ -7,6 +7,7 @@ export function RaceBettingProvider({ children }) {
     const [wallet, setWallet] = useState(0);
     const [drivers, setDrivers] = useState([]);
     const [raceHistory, setRaceHistory] = useState([]);
+    const [registeredUsers, setRegisteredUsers] = useState([]); // Store all registered users
 
     const updateWallet = (amount) => {
         setWallet(prev => prev + amount);
@@ -20,16 +21,40 @@ export function RaceBettingProvider({ children }) {
         setRaceHistory(prev => [...prev, result]);
     };
 
+    const registerUser = (userCredentials) => {
+        // Check if username already exists
+        if (registeredUsers.some(u => u.username === userCredentials.username)) {
+            return { success: false, message: 'Username already taken.' };
+        }
+        // Add new user
+        setRegisteredUsers([...registeredUsers, userCredentials]);
+        return { success: true, message: 'User registered successfully.' };
+    };
+
+    const loginUser = (username, password) => {
+        const foundUser = registeredUsers.find(u => u.username === username);
+        if (!foundUser) {
+            return { success: false, message: 'User not found.' };
+        }
+        if (foundUser.password !== password) {
+            return { success: false, message: 'Incorrect password.' };
+        }
+        return { success: true, user: foundUser };
+    };
+
     const value = {
         user,
         setUser: updateUserData,
         wallet,
-        setWallet, // Add this so we can directly set wallet
+        setWallet,
         updateWallet,
         drivers,
         setDrivers,
         raceHistory,
         addRaceResult,
+        registeredUsers,
+        registerUser,
+        loginUser,
     };
 
     return (
