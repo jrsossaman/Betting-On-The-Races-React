@@ -1,22 +1,23 @@
 import React from 'react';
-import { raceBettingContext } from './context/race_betting_context';
+import { RaceBettingProvider } from './context/race_betting_context';
 import SignUp from './components/sign-up';
-// import from left
+import RunRace from './components/run_race';
 
 function App() {
     return(
-        <raceBettingContext>
+        <RaceBettingProvider>
             <div className='app container'>
-                <h1>Betting on the Races!</h1>
-                <p>Create new profile</p>
+                <h1>🏎️ Betting on the Races!</h1>
+                <p>Create new profile or start racing</p>
                 <SignUp />
+                <RunRace />
             </div>
-        </raceBettingContext>
-        // main code goes here.
+        </RaceBettingProvider>
     );
 }
 
 export default App;
+
 
 
 // import logo from './logo.svg';
