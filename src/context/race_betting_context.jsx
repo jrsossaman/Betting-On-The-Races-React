@@ -10,7 +10,34 @@ export function RaceBettingProvider({ children }) {
     const [registeredUsers, setRegisteredUsers] = useState([]); // Store all registered users
 
     const updateWallet = (amount) => {
-        setWallet(prev => prev + amount);
+        setWallet(prev => {
+            const newWallet = prev + amount;
+            // Update the logged-in user's wallet in registeredUsers
+            if (user) {
+                setRegisteredUsers(prevUsers =>
+                    prevUsers.map(u =>
+                        u.username === user.username
+                            ? { ...u, wallet: newWallet }
+                            : u
+                    )
+                );
+            }
+            return newWallet;
+        });
+    };
+
+    const setWalletDirect = (amount) => {
+        setWallet(amount);
+        // Update the logged-in user's wallet in registeredUsers
+        if (user) {
+            setRegisteredUsers(prevUsers =>
+                prevUsers.map(u =>
+                    u.username === user.username
+                        ? { ...u, wallet: amount }
+                        : u
+                )
+            );
+        }
     };
 
     const updateUserData = (userData) => {
@@ -46,7 +73,7 @@ export function RaceBettingProvider({ children }) {
         user,
         setUser: updateUserData,
         wallet,
-        setWallet,
+        setWallet: setWalletDirect,
         updateWallet,
         drivers,
         setDrivers,
