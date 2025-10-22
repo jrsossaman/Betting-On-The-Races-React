@@ -5,7 +5,7 @@ import RunRace from './components/run_race';
 import driversData from './drivers.json';
 
 function AppContent() {
-    const { setDrivers, user, setUser } = useRaceBetting();
+    const { setDrivers, user, setUser, setWallet } = useRaceBetting();
 
     useEffect(() => {
         // Load drivers from JSON file on component mount
@@ -15,9 +15,9 @@ function AppContent() {
     }, [setDrivers]);
 
     const handleLogout = () => {
-        setUser(null);
         if (window.confirm('Are you sure you want to logout?')) {
-            // Clear wallet and user data
+            setUser(null);
+            setWallet(0);
         }
     };
 

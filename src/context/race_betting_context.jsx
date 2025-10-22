@@ -24,6 +24,7 @@ export function RaceBettingProvider({ children }) {
         user,
         setUser: updateUserData,
         wallet,
+        setWallet, // Add this so we can directly set wallet
         updateWallet,
         drivers,
         setDrivers,
