@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function signUp() {
+function SignUp() {
     const [form, setForm] = useState({
         name: '',
         username: '',
@@ -16,7 +16,7 @@ function signUp() {
         });
     };
 
-    const handleSignUp = (e) => {
+    const handleSignUp = async (e) => {
         e.preventDefault();
         if (!form.name || !form.username || !form.password) {
             alert('All fields are required.');
@@ -24,15 +24,29 @@ function signUp() {
         }
 
         const newUser = {
-            ...form,
-            wallet,
+            name: form.name,
+            username: form.username,
+            password: form.password,
+            wallet: wallet,
         };
 
-        console.log('Profile created successfully.')
+        // const response = await fetch('https://unit-4-project-app-24d5eea30b23.herokuapp.com/post/data',
+        //     method = 'POST',
+        //     headers = {
+        //         'Content-Type': application/JSON
+        //     },
+        //     body = JSON.stringify(newUser),
+        // )};
 
-        setForm({name: '', username: '', password: ''});
-        setWallet(0);
-    };
+        // if (!response.ok) {
+        //     throw new Error('Failed to create new user.')
+        // }
+        // const data = response.json();
+        // console.log('Profile created.', data);
+        alert('Sign-up successful.')
+
+            setForm({name: '', username: '', password: ''});
+            setWallet(0);
 
     return (
         <form onSubmit={handleSignUp}>
@@ -70,5 +84,6 @@ function signUp() {
         </form>
     );
 }
+}
 
-export default signUp;
+export default SignUp;
