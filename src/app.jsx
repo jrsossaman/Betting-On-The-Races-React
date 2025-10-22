@@ -5,7 +5,7 @@ import RunRace from './components/run_race';
 import driversData from './drivers.json';
 
 function AppContent() {
-    const { setDrivers, user, setUser, wallet } = useRaceBetting();
+    const { setDrivers, user, setUser } = useRaceBetting();
 
     useEffect(() => {
         // Load drivers from JSON file on component mount
