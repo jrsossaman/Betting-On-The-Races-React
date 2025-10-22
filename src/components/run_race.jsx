@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import diceRoller from "./dice_roller";
 import { useRaceBetting } from "../context/race_betting_context";
 
