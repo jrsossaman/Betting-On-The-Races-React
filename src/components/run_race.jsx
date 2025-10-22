@@ -6,6 +6,7 @@ function RunRace() {
     const { wallet, updateWallet, addRaceResult, drivers } = useRaceBetting();
     const [selectedDriver1, setSelectedDriver1] = useState(null);
     const [selectedDriver2, setSelectedDriver2] = useState(null);
+    const [betDriver, setBetDriver] = useState(null); // New: track who they're betting on
     const [betAmount, setBetAmount] = useState(0);
     const [raceResult, setRaceResult] = useState(null);
     const [isRacing, setIsRacing] = useState(false);
@@ -23,6 +24,11 @@ function RunRace() {
 
         if (selectedDriver1.number === selectedDriver2.number) {
             setError("Please select two different drivers.");
+            return false;
+        }
+
+        if (!betDriver) {
+            setError("Please select which driver you want to bet on.");
             return false;
         }
 
@@ -69,8 +75,7 @@ function RunRace() {
                 });
             } else {
                 // Determine if user's bet won or lost
-                const winnerIsDriver1 = winner.number === selectedDriver1.number;
-                const userWon = winnerIsDriver1;
+                const userWon = winner.number === betDriver.number;
 
                 let payout = 0;
                 if (userWon) {
@@ -78,13 +83,13 @@ function RunRace() {
                     payout = betAmount * 2;
                     updateWallet(payout);
                     setRaceMessage(
-                        `🎉 ${winner.name} wins! You won $${payout}!`
+                        `🎉 ${winner.name} wins! Your bet on ${winner.name} paid off! You won $${payout}!`
                     );
                 } else {
                     // User loses their bet
                     payout = 0;
                     setRaceMessage(
-                        `😞 ${winner.name} wins! You lost $${betAmount}.`
+                        `😞 ${winner.name} wins! Your bet on ${betDriver.name} lost. You lost $${betAmount}.`
                     );
                 }
 
@@ -95,6 +100,7 @@ function RunRace() {
                     driver2: selectedDriver2,
                     winner,
                     loser,
+                    betDriver,
                     betAmount,
                     payout,
                     userWon,
@@ -107,6 +113,7 @@ function RunRace() {
                     driver1: selectedDriver1,
                     driver2: selectedDriver2,
                     winner,
+                    betDriver,
                     betAmount,
                     userWon,
                     timestamp: new Date().toLocaleString(),
@@ -126,6 +133,7 @@ function RunRace() {
     const resetRace = () => {
         setSelectedDriver1(null);
         setSelectedDriver2(null);
+        setBetDriver(null);
         setBetAmount(0);
         setRaceResult(null);
         setRaceMessage("");
@@ -205,13 +213,44 @@ function RunRace() {
                 </div>
             </div>
 
+            <div className="betting-selection">
+                <h3>Who do you want to bet on?</h3>
+                <div className="bet-options">
+                    {selectedDriver1 && (
+                        <button 
+                            onClick={() => setBetDriver(selectedDriver1)}
+                            className={`bet-button ${betDriver?.number === selectedDriver1.number ? 'selected' : ''}`}
+                            disabled={isRacing}
+                        >
+                            <div>{selectedDriver1.name}</div>
+                            <div className="odds">Bet on {selectedDriver1.name}</div>
+                        </button>
+                    )}
+                    {selectedDriver2 && (
+                        <button 
+                            onClick={() => setBetDriver(selectedDriver2)}
+                            className={`bet-button ${betDriver?.number === selectedDriver2.number ? 'selected' : ''}`}
+                            disabled={isRacing}
+                        >
+                            <div>{selectedDriver2.name}</div>
+                            <div className="odds">Bet on {selectedDriver2.name}</div>
+                        </button>
+                    )}
+                </div>
+                {betDriver && (
+                    <p className="bet-confirmation">
+                        ✅ Betting on: <strong>{betDriver.name}</strong>
+                    </p>
+                )}
+            </div>
+
             <div className="bet-section">
                 <label>Bet Amount: $</label>
                 <input
                     type="number"
                     value={betAmount}
                     onChange={(e) => setBetAmount(Math.max(0, parseInt(e.target.value) || 0))}
-                    disabled={isRacing}
+                    disabled={isRacing || !betDriver}
                     min="0"
                     max={wallet}
                 />
