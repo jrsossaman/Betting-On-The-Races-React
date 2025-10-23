@@ -7,21 +7,17 @@ class Driver {
     }
 }
 
-const getDriver = async (driverName) => {
-    fetch('https://unit-4-project-app-24d5eea30b23.herokuapp.com/get/all?teamId=2')
-        .then((response) => response.json())
-        .then((data) => {
-            for (let i = 0; i < data.length; i++) {
-                if (data[i].name === driverName) {
-                    const driver = new Driver(
-                        data[i].number,
-                        data[i].name,
-                        data[i].status,
-                        data[i].driveBonus
-                    );
-                    return driver;
-                }
-            }
-        });
+const getDriver = async () => {
+    const response = await fetch('https://unit-4-project-app-24d5eea30b23.herokuapp.com/get/all?teamId=2');
+    if (!response.ok) throw new Error('Failed to fetch drivers');
+
+    const data = await response.json();
+    const drivers = data.body.drivers.map(d => 
+        new Driver(d.number, d.name, d.status, d.driveBonus)
+    );
+
+    return drivers;
 };
+
 export default getDriver;
+
