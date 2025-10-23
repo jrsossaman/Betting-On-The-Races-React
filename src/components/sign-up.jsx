@@ -1,13 +1,15 @@
 import React, { useState } from "react";
+import { useRaceBetting } from "../context/race_betting_context";
 
 function SignUp() {
+    const { setUser, setWallet, registerUser, loginUser } = useRaceBetting();
+    const [isLogin, setIsLogin] = useState(false);
     const [form, setForm] = useState({
         name: '',
         username: '',
         password: '',
     });
-
-    const [wallet, setWallet] = useState(0);
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
         setForm({
@@ -16,74 +18,124 @@ function SignUp() {
         });
     };
 
-    const handleSignUp = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!form.name || !form.username || !form.password) {
-            alert('All fields are required.');
-            return;
+        setError('');
+
+        if (isLogin) {
+            // LOGIN MODE
+            if (!form.username || !form.password) {
+                setError('Username and password are required.');
+                return;
+            }
+
+            const result = loginUser(form.username, form.password);
+            if (!result.success) {
+                setError(result.message);
+                return;
+            }
+
+            // Login successful
+            const userData = result.user;
+            setUser(userData);
+            setWallet(userData.wallet);
+            alert(`Welcome back, ${userData.name}!`);
+            setForm({ name: '', username: '', password: '' });
+        } else {
+            // SIGNUP MODE
+            if (!form.name || !form.username || !form.password) {
+                setError('All fields are required.');
+                return;
+            }
+
+            const newUser = {
+                name: form.name,
+                username: form.username,
+                password: form.password,
+                wallet: 1000,
+            };
+
+            const result = registerUser(newUser);
+            if (!result.success) {
+                setError(result.message);
+                return;
+            }
+
+            // Signup successful - log them in
+            setUser(newUser);
+            setWallet(1000);
+            alert(`Welcome ${form.name}! You've been given $1000 to start betting!`);
+            setForm({ name: '', username: '', password: '' });
         }
+    };
 
-        const newUser = {
-            name: form.name,
-            username: form.username,
-            password: form.password,
-            wallet: wallet,
-        };
-
-        // const response = await fetch('https://unit-4-project-app-24d5eea30b23.herokuapp.com/post/data',
-        //     method = 'POST',
-        //     headers = {
-        //         'Content-Type': application/JSON
-        //     },
-        //     body = JSON.stringify(newUser),
-        // )};
-
-        // if (!response.ok) {
-        //     throw new Error('Failed to create new user.')
-        // }
-        // const data = response.json();
-        // console.log('Profile created.', data);
-        alert('Sign-up successful.')
-
-            setForm({name: '', username: '', password: ''});
-            setWallet(0);
+    const toggleMode = () => {
+        setIsLogin(!isLogin);
+        setForm({ name: '', username: '', password: '' });
+        setError('');
+    };
 
     return (
-        <form onSubmit={handleSignUp}>
-            <div>
-                <label>Name:</label>
-                <input
-                type="text"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                required
-                />
+        <div className="signup-container">
+            <h2>{isLogin ? 'Login to Your Account' : 'Create Your Profile'}</h2>
+            
+            {error && <div className="error-message">{error}</div>}
+
+            <form onSubmit={handleSubmit}>
+                {!isLogin && (
+                    <div>
+                        <label>Name:</label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={form.name}
+                            onChange={handleChange}
+                            required={!isLogin}
+                            placeholder="Enter your name"
+                        />
+                    </div>
+                )}
+                <div>
+                    <label>Username:</label>
+                    <input
+                        type="text"
+                        name="username"
+                        value={form.username}
+                        onChange={handleChange}
+                        required
+                        placeholder="Enter username"
+                    />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input
+                        type="password"
+                        name="password"
+                        value={form.password}
+                        onChange={handleChange}
+                        required
+                        placeholder="Enter password"
+                    />
+                </div>
+                <button type="submit">
+                    {isLogin ? 'Login' : 'Create Profile'}
+                </button>
+            </form>
+
+            <div className="auth-toggle">
+                <p>
+                    {isLogin ? "Don't have an account? " : "Already have an account? "}
+                    <button 
+                        type="button" 
+                        onClick={toggleMode}
+                        className="toggle-button"
+                    >
+                        {isLogin ? 'Create Profile' : 'Login'}
+                    </button>
+                </p>
             </div>
-            <div>
-                <label>Username:</label>
-                <input
-                type="text"
-                username="username"
-                value={form.username}
-                onChange={handleChange}
-                required
-                />
-            </div>
-            <div>
-                <label>Password:</label>
-                <input
-                type="text"
-                password="password"
-                value={form.password}
-                onChange={handleChange}
-                required
-                />
-            </div>
-            <button type="submit">Create Profile</button>
-        </form>
+        </div>
     );
-}
 }
 
 export default SignUp;
