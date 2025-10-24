@@ -8,7 +8,7 @@ class User {
 }
 
 const getUser = async (username, password) => {
-    const response = await fetch('https://unit-4-project-app-24d5eea30b23.herokuapp.com/get/all?teamId=2');
+    const response = await fetch('/get/all?teamId=2');
     if (!response.ok) throw new Error('Failed to fetch users');
 
     const data = await response.json();

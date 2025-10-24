@@ -17,14 +17,14 @@ const diceRoller = async (driver1, driver2, teamId = 2) => {
     }
 
     
-    await fetch(`https://unit-4-project-app-24d5eea30b23.herokuapp.com/update/data/teamId=${teamId}&recordId=${winner.number}`, {
+    await fetch(`/update/data/teamId=${teamId}&recordId=${winner.number}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ body: { drivers: [{ number: winner.number, status: true }] } }),
     });
 
    
-    await fetch(`https://unit-4-project-app-24d5eea30b23.herokuapp.com/update/data/teamId=${teamId}&recordId=${loser.number}`, {
+    await fetch(`/update/data/teamId=${teamId}&recordId=${loser.number}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ body: { drivers: [{ number: loser.number, status: false }] } }),
