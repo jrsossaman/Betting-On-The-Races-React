@@ -1,7 +1,7 @@
 {
     "team": 2,
-    "body": 
-        [
+    "body": {
+        "drivers": [
             {
                 "number": 1,
                 "name": "Benjamin Benedict Benson",
@@ -26,5 +26,14 @@
                 "status": true,
                 "driveBonus": 2
             }
+        ],
+        "users": [
+            {
+                "name": "admin",
+                "username": "admin",
+                "password": "password",
+                "wallet": 1000
+            }
         ]
+    }
 }
