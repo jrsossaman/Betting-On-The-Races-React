@@ -12,6 +12,7 @@ function RunRace() {
     const [isRacing, setIsRacing] = useState(false);
     const [error, setError] = useState("");
     const [raceMessage, setRaceMessage] = useState("");
+    const [addMoneyInput, setAddMoneyInput] = useState("");
 
     // Validate inputs before race
     const validateRace = () => {
@@ -146,12 +147,27 @@ function RunRace() {
             
             <div className="wallet-display">
                 <h3>Your Wallet: ${wallet}</h3>
-                <button 
-                    onClick={() => updateWallet(100)}
-                    className="btn-add-funds"
-                >
-                    + Add $100
-                </button>
+                <div className="add-funds-section">
+                    <input 
+                        type="number" 
+                        placeholder="Enter amount"
+                        value={addMoneyInput}
+                        onChange={(e) => setAddMoneyInput(e.target.value)}
+                        min="1"
+                        className="add-funds-input"
+                    />
+                    <button 
+                        onClick={() => {
+                            if (addMoneyInput && parseInt(addMoneyInput) > 0) {
+                                updateWallet(parseInt(addMoneyInput));
+                                setAddMoneyInput("");
+                            }
+                        }}
+                        className="btn-add-funds"
+                    >
+                        + Add Funds
+                    </button>
+                </div>
             </div>
 
             {error && <div className="error-message">{error}</div>}
