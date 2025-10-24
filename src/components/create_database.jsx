@@ -5,7 +5,7 @@ const createDatabase = () => {
       return response.json();
     })
     .then((data) => {
-      return fetch("https://unit-4-project-app-24d5eea30b23.herokuapp.com/drivers", {
+      return fetch("/drivers", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

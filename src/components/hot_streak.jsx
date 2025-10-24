@@ -1,7 +1,7 @@
 const hotStreakBonus = async (driver, teamId = 2) => {
   
   driver.driveBonus += 1;
-  await fetch(`https://unit-4-project-app-24d5eea30b23.herokuapp.com/update/data/teamId=${teamId}&recordId=${driver.number}`, {
+  await fetch(`/update/data/teamId=${teamId}&recordId=${driver.number}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

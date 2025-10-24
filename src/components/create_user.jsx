@@ -1,6 +1,6 @@
 const createUser = async (name, username, password, wallet) => {
   try {
-    const response = await fetch(`https://unit-4-project-app-24d5eea30b23.herokuapp.com/update/data/teamId=2`, {
+    const response = await fetch(`/update/data/teamId=2`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

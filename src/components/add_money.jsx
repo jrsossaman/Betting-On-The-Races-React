@@ -1,6 +1,6 @@
 const addMoney = async (username, amount) => {
   try {
-    const response = await fetch(`https://unit-4-project-app-24d5eea30b23.herokuapp.com/get/all?teamId=2`);
+    const response = await fetch(`/get/all?teamId=2`);
     if (!response.ok) throw new Error('Failed to fetch team data');
     const data = await response.json();
 
@@ -8,7 +8,7 @@ const addMoney = async (username, amount) => {
     if (!user) throw new Error('User not found');
 
     user.wallet += amount;
-    const updateResponse = await fetch(`https://unit-4-project-app-24d5eea30b23.herokuapp.com/update/data/teamId=2&recordId=${user.username}`, {
+    const updateResponse = await fetch(`/update/data/teamId=2&recordId=${user.username}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
