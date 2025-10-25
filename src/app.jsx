@@ -3,6 +3,10 @@ import { RaceBettingProvider, useRaceBetting } from './context/race_betting_cont
 import SignUp from './components/sign-up';
 import RunRace from './components/run_race';
 import driversData from './drivers.json';
+import background from './assets/Racing_Car.jpg';
+import './App.css';
+
+
 
 function AppContent() {
     const { setDrivers, user, setUser, setWallet } = useRaceBetting();
@@ -46,6 +50,7 @@ function AppContent() {
 
 function App() {
     return(
+        
         <RaceBettingProvider>
             <AppContent />
         </RaceBettingProvider>

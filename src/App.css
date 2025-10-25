@@ -23,7 +23,14 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
-
+.app {
+  min-height: 100vh;
+  background-image: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #fff;
+}
 .App-link {
   color: #61dafb;
 }
