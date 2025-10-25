@@ -1,4 +1,4 @@
-.App {
+/* .App {
   text-align: center;
 }
 
@@ -24,7 +24,7 @@
   font-size: calc(10px + 2vmin);
   color: white;
   /* margin: auto; */
-}
+/* }
 .app_container{
   min-height: 100vh;
   background-image: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('./Images/Racing_Car.jpg');
@@ -206,6 +206,305 @@ select{
   button {
     width: 100%;
     margin: 8px auto;
+  }
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+} */ 
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.title {
+  margin-top: 0;
+  padding-top: 30px;
+  font-size: clamp(24px, 5vw, 48px);
+}
+
+.header {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin-left: 70px;
+  margin-right: 70px;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  padding: 20px;
+}
+
+.app_container {
+  min-height: 100vh;
+  background-image: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('./Images/Racing_Car.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #fff;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.Create_new {
+  margin-left: 0;
+  margin-top: 20px;
+}
+
+.Sign-up {
+  margin-left: 0;
+  margin-top: 20px;
+}
+
+input[type=text], input[type=password] {
+  margin: 1%;
+  background-color: rgba(128, 128, 128, 0.46);
+  color: rgb(255, 255, 255);
+  height: 20px;
+  padding: 12px;
+  width: 100%;
+  max-width: 300px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+}
+
+button[type=submit] {
+  margin-top: 1%;
+  background-color: rgba(68, 93, 135, 0.605);
+  color: rgb(255, 255, 255);
+  height: auto;
+  min-height: 44px;
+  width: 100%;
+  max-width: 250px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: medium;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+button[type=button] {
+  margin-top: 1%;
+  background-color: rgba(112, 161, 94, 0.437);
+  color: rgb(255, 255, 255);
+  height: auto;
+  min-height: 44px;
+  width: auto;
+  min-width: 100px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: medium;
+  border: none;
+  border-radius: 40px;
+  margin-left: 1%;
+  transition: background-color 0.3s ease;
+}
+
+::placeholder {
+  color: #ffffff;
+}
+
+input[type=number] {
+  margin-top: 1%;
+  background-color: rgba(104, 85, 85, 0.259);
+  color: rgb(255, 255, 255);
+  height: auto;
+  min-height: 44px;
+  width: 100%;
+  max-width: 150px;
+  padding: 12px;
+  cursor: pointer;
+  font-size: medium;
+  text-align: center;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+}
+
+.btn-add-funds {
+  margin-top: 1%;
+  background-color: rgba(15, 125, 17, 0.603);
+  color: rgb(255, 255, 255);
+  height: auto;
+  min-height: 44px;
+  width: auto;
+  min-width: 120px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: medium;
+  text-align: center;
+  border: none;
+  border-radius: 5px;
+  margin-left: 1%;
+  transition: background-color 0.3s ease;
+}
+
+select {
+  margin-top: 1%;
+  background-color: rgba(68, 93, 135, 0.605);
+  color: rgb(255, 255, 255);
+  height: auto;
+  min-height: 44px;
+  width: fit-content;
+  min-width: 150px;
+  padding: 12px;
+  cursor: pointer;
+  font-size: medium;
+  text-align: center;
+  margin-left: 1%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+}
+
+.bet-options {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.bet-button {
+  background-color: rgba(75, 49, 49, 0.208);
+  height: auto;
+  min-height: 44px;
+  width: 100%;
+  max-width: 200px;
+  font-size: clamp(16px, 4vw, 20px);
+  color: #ffffff;
+  margin: 1%;
+  margin-bottom: 3%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 12px 20px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-logout {
+  background-color: rgba(68, 93, 135, 0.605);
+  height: auto;
+  min-height: 44px;
+  width: fit-content;
+  min-width: 100px;
+  font-size: clamp(14px, 3vw, 20px);
+  color: #ffffff;
+  margin: 1%;
+  margin-bottom: 3%;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 12px 20px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-race, .btn-reset {
+  background-color: rgba(68, 93, 135, 0.605);
+  height: auto;
+  min-height: 44px;
+  width: auto;
+  min-width: 100px;
+  font-size: clamp(14px, 3vw, 20px);
+  color: #ffffff;
+  margin-top: 4%;
+  margin-bottom: 3%;
+  margin-right: 1%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .header {
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 10px;
+  }
+
+  .title {
+    font-size: clamp(20px, 5vw, 32px);
+    padding-top: 20px;
+  }
+
+  input[type=text], input[type=password],
+  input[type=number],
+  select {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  button[type=submit],
+  button[type=button],
+  .btn-add-funds {
+    width: 100%;
+    max-width: 100%;
+    margin: 10px auto;
+  }
+
+  .bet-options {
+    width: 100%;
+    max-width: 100%;
+    flex-direction: column;
+  }
+
+  .bet-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 5px;
+  }
+
+  .title {
+    font-size: 24px;
+    padding-top: 15px;
+  }
+
+  input[type=text], input[type=password],
+  input[type=number],
+  select {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  button {
+    width: 100%;
+    margin: 8px auto;
+  }
+
+  .bet-options {
+    flex-direction: column;
+  }
+
+  .bet-button {
+    width: 100%;
   }
 }
 
