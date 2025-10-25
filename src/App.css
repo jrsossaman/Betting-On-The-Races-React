@@ -1049,6 +1049,95 @@ select {
   color: #FFD700;
 }
 
+.danger-zone {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(244, 67, 54, 0.1);
+  border: 2px solid rgba(244, 67, 54, 0.4);
+  border-radius: 6px;
+}
+
+.danger-zone h4 {
+  color: #f44336;
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.danger-zone > p {
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 15px 0;
+  font-size: 14px;
+}
+
+.btn-delete-account {
+  width: 100%;
+  padding: 12px 20px;
+  background: rgba(244, 67, 54, 0.6);
+  color: white;
+  border: 1px solid rgba(244, 67, 54, 0.6);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-delete-account:hover {
+  background: rgba(244, 67, 54, 0.9);
+  border-color: #f44336;
+  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+}
+
+.delete-confirmation {
+  background: rgba(244, 67, 54, 0.05);
+  padding: 15px;
+  border-radius: 4px;
+  margin-top: 15px;
+}
+
+.warning-text {
+  color: #ff9800;
+  font-weight: 500;
+  margin: 0 0 15px 0;
+  font-size: 14px;
+}
+
+.btn-delete-confirm {
+  flex: 1;
+  background: rgba(244, 67, 54, 0.8);
+  color: white;
+  border: 1px solid rgba(244, 67, 54, 0.8);
+  border-radius: 4px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-delete-confirm:hover {
+  background: rgba(244, 67, 54, 1);
+  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.4);
+}
+
+.btn-cancel-delete {
+  flex: 1;
+  background: rgba(128, 128, 128, 0.5);
+  color: white;
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  border-radius: 4px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel-delete:hover {
+  background: rgba(128, 128, 128, 0.8);
+}
+
 .button-group {
   display: flex;
   gap: 10px;

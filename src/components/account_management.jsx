@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useRaceBetting } from "../context/race_betting_context";
 
 function AccountManagement() {
-    const { user, wallet, registeredUsers, setUser } = useRaceBetting();
+    const { user, wallet, registeredUsers, setUser, deleteUser } = useRaceBetting();
     const [activeTab, setActiveTab] = useState("profile");
     const [editMode, setEditMode] = useState(false);
     const [editedName, setEditedName] = useState(user?.name || "");
@@ -10,6 +10,7 @@ function AccountManagement() {
     const [editError, setEditError] = useState("");
     const [editSuccess, setEditSuccess] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const handleEditProfile = () => {
         if (!editedName.trim()) {
@@ -40,6 +41,17 @@ function AccountManagement() {
         setEditedEmail(user?.email || "");
         setEditMode(false);
         setEditError("");
+    };
+
+    const handleDeleteAccount = () => {
+        if (window.confirm("⚠️ WARNING: This will permanently delete your account and all associated data. This action cannot be undone. Are you sure?")) {
+            deleteUser(user?.username);
+            setEditSuccess("✅ Account deleted successfully. Goodbye!");
+            setTimeout(() => {
+                // User will be redirected by the app component when user becomes null
+            }, 1500);
+        }
+        setShowDeleteConfirm(false);
     };
 
     const totalRacesPlayed = registeredUsers.find(u => u.username === user?.username)?.races || 0;
@@ -189,6 +201,37 @@ function AccountManagement() {
                                         >
                                             ✏️ Edit Profile
                                         </button>
+
+                                        <div className="danger-zone">
+                                            <h4>⚠️ Danger Zone</h4>
+                                            <p>Once you delete your account, there is no going back. Please be certain.</p>
+                                            {showDeleteConfirm ? (
+                                                <div className="delete-confirmation">
+                                                    <p className="warning-text">Are you absolutely sure you want to delete your account? This action cannot be undone.</p>
+                                                    <div className="button-group">
+                                                        <button
+                                                            onClick={handleDeleteAccount}
+                                                            className="btn-delete-confirm"
+                                                        >
+                                                            ✓ Yes, Delete My Account
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setShowDeleteConfirm(false)}
+                                                            className="btn-cancel-delete"
+                                                        >
+                                                            ✗ Cancel
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={() => setShowDeleteConfirm(true)}
+                                                    className="btn-delete-account"
+                                                >
+                                                    🗑️ Delete Account
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                             </div>
