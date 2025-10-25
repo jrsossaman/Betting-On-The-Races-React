@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useRaceBetting } from "../context/race_betting_context";
 
+
 function SignUp() {
     const { setUser, setWallet, registerUser, loginUser } = useRaceBetting();
     const [isLogin, setIsLogin] = useState(false);

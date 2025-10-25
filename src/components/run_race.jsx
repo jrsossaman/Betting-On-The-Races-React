@@ -184,7 +184,7 @@ function RunRace() {
                         }}
                         disabled={isRacing}
                     >
-                        <option value="">-- Choose Driver --</option>
+                        <option className="dropdown" value="">-- Choose Driver --</option>
                         {drivers.map(driver => (
                             <option key={driver.number} value={driver.number} disabled={selectedDriver2?.number === driver.number}>
                                 {driver.name} (Bonus: +{driver.driveBonus})
@@ -212,7 +212,7 @@ function RunRace() {
                         }}
                         disabled={isRacing}
                     >
-                        <option value="">-- Choose Driver --</option>
+                        <option  value="">-- Choose Driver --</option>
                         {drivers.map(driver => (
                             <option key={driver.number} value={driver.number} disabled={selectedDriver1?.number === driver.number}>
                                 {driver.name} (Bonus: +{driver.driveBonus})

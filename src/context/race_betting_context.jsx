@@ -51,7 +51,7 @@ export function RaceBettingProvider({ children }) {
     const loginUser = (username, password) => {
         const foundUser = registeredUsers.find(u => u.username === username);
         if (!foundUser) {
-            return { success: false, message: 'User not found.' };
+            return { success: false, message: 'User not found.'};
         }
         if (foundUser.password !== password) {
             return { success: false, message: 'Incorrect password.' };
