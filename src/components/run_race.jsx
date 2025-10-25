@@ -114,6 +114,7 @@ function RunRace() {
                     driver1: selectedDriver1,
                     driver2: selectedDriver2,
                     winner,
+                    loser,
                     betDriver,
                     betAmount,
                     userWon,
