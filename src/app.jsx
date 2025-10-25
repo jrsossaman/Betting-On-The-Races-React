@@ -3,7 +3,6 @@ import { RaceBettingProvider, useRaceBetting } from './context/race_betting_cont
 import SignUp from './components/sign-up';
 import RunRace from './components/run_race';
 import driversData from './drivers.json';
-import background from './assets/Racing_Car.jpg';
 import './App.css';
 
 
@@ -26,24 +25,26 @@ function AppContent() {
     };
 
     return (
-        <div className='app container'>
+        <div className='app_container'>
             <div className="header">
-                <h1>🏎️ Betting on the Races!</h1>
+                <h1 className="title">🏎️ Betting on the Races!</h1>
                 {user ? (
                     <div className="user-info">
                         <span>Welcome, <strong>{user.name}</strong>!</span>
                         <button onClick={handleLogout} className="btn-logout">Logout</button>
                     </div>
                 ) : (
-                    <p>Create new profile to get started</p>
+                    <p className='Create_new'>Create new profile to get started</p>
                 )}
+                <div className='Sign-up'>
+                    {!user ? (
+                        <SignUp />
+                    ) : (
+                        <RunRace />
+                    )}
+                </div>
             </div>
-
-            {!user ? (
-                <SignUp />
-            ) : (
-                <RunRace />
-            )}
+            
         </div>
     );
 }

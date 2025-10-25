@@ -12,20 +12,22 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
-
-.App-header {
-  background-color: #282c34;
+.title {
+  margin-top: 0;
+  padding-top: 30px;
+}
+.header {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  margin-left: 70px;
   font-size: calc(10px + 2vmin);
   color: white;
+  /* margin: auto; */
 }
-.app {
+.app_container{
   min-height: 100vh;
-  background-image: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('/background.jpg');
+  background-image: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('./Images/Racing_Car.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -34,6 +36,69 @@
 .App-link {
   color: #61dafb;
 }
+.Create_new{
+  margin-left: 107px;
+}
+.Sign-up{
+  margin-left: 107px;
+}
+input[type=text], input[type=password]{
+  margin: 1%;
+  background-color: rgba(128, 128, 128, 0.46);
+  color: rgb(255, 255, 255);
+  height: 20px;
+  padding: 10px;
+}
+
+button[type=submit]{
+  margin-top: 1%;
+  background-color: rgba(68, 93, 135, 0.605);
+  color: rgb(255, 255, 255);
+  height: 40px;
+  width: 20%;
+  padding: 10px;
+  cursor: pointer;
+  font-size: medium;
+  padding-top: 1%;
+  padding-bottom: 2%;
+}
+
+button[type=button]{
+  margin-top: 1%;
+  background-color: rgba(112, 161, 94, 0.437);
+  color: rgb(255, 255, 255);
+  height: 40px;
+  width: 7%;
+  padding: 10px;
+  cursor: pointer;
+  font-size: medium;
+  padding-top: 1%;
+  padding-bottom: 2%;
+  border-radius: 40px;
+  margin-left: 1%;
+}
+
+::placeholder{
+  color: #ffffff;
+  left: 2px;
+  
+}
+
+input[type=number]{
+  margin-top: 1%;
+  background-color: rgba(112, 161, 94, 0.437);
+  color: rgb(255, 255, 255);
+  height: 40px;
+  width: 7%;
+  padding: 10px;
+  cursor: pointer;
+  font-size: medium;
+  padding-top: 1%;
+  padding-bottom: 2%;
+  border-radius: 40px;
+  margin-left: 1%;
+}
+
 
 @keyframes App-logo-spin {
   from {
