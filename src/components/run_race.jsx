@@ -257,21 +257,7 @@ function RunRace() {
                     </p>
                 )}
             </div>
-                <div className="bet-section">
-                    <label>Bet Amount: $</label>
-                    <input
-                        type="number"
-                        value={betAmount}
-                        onChange={(e) => {
-                            const val = e.target.value;
-                            
-                            setBetAmount(val === '' ? 0 : Math.max(0, parseInt(val, 10) || 0));
-                        }}
-                        disabled={isRacing || !betDriver}
-                        min="1"
-                        placeholder="Enter bet amount"
-                    />
-                </div>
+
             <div className="bet-section">
                 <label>Bet Amount: $</label>
                 <input
