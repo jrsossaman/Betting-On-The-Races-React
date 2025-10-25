@@ -86,19 +86,71 @@ button[type=button]{
 
 input[type=number]{
   margin-top: 1%;
-  background-color: rgba(112, 161, 94, 0.437);
+  background-color: rgba(104, 85, 85, 0.259);
   color: rgb(255, 255, 255);
   height: 40px;
   width: 7%;
   padding: 10px;
   cursor: pointer;
   font-size: medium;
-  padding-top: 1%;
-  padding-bottom: 2%;
-  border-radius: 40px;
+  text-align: center;
+}
+.btn-add-funds{
+  margin-top: 1%;
+  background-color: rgba(15, 125, 17, 0.603);
+  color: rgb(255, 255, 255);
+  height: 40px;
+  width: 7%;
+  padding: 10px;
+  cursor: pointer;
+  font-size: medium;
+  text-align: center;
   margin-left: 1%;
 }
-
+select{
+  margin-top: 1%;
+  background-color: rgba(68, 93, 135, 0.605);
+  color: rgb(255, 255, 255);
+  height: 40px;
+  width: fit-content;
+  padding: 10px;
+  cursor: pointer;
+  font-size: medium;
+  text-align: center;
+  margin-left: 1%;
+}
+.bet-options{
+  margin-top: fit-content;
+  width: 30%
+}
+.bet-button{
+  background-color:rgba(75, 49, 49, 0.208);
+  height: 40px;
+  width: fit-content;
+  font-size: 20pt;
+  color: #ffffff;
+  margin: 1%;
+  margin-bottom: 3%;
+}
+.btn-logout{
+  background-color: rgba(68, 93, 135, 0.605);
+  height: 40px;
+  width: fit-content;
+  font-size: 20pt;
+  color: #ffffff;
+  margin: 1%;
+  margin-bottom: 3%;
+}
+.btn-race, .btn-reset{
+  background-color: rgba(68, 93, 135, 0.605);
+  height: 40px;
+  width: fit-content;
+  font-size: 20pt;
+  color: #ffffff;
+  margin-top: 4%;
+  margin-bottom: 3%;
+  margin-right: 1%;
+}
 
 @keyframes App-logo-spin {
   from {
