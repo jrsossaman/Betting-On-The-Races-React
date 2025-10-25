@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { RaceBettingProvider, useRaceBetting } from './context/race_betting_context';
 import SignUp from './components/sign-up';
 import RunRace from './components/run_race';
 import AddDriver from './components/add_driver';
 import DeleteDriver from './components/delete_driver';
+import AccountManagement from './components/account_management';
 import driversData from './drivers.json';
 import './App.css';
 
@@ -11,6 +12,7 @@ import './App.css';
 
 function AppContent() {
     const { setDrivers, user, setUser } = useRaceBetting();
+    const [activeView, setActiveView] = useState("racing");
 
     useEffect(() => {
         // Load drivers from JSON file on component mount
@@ -33,7 +35,21 @@ function AppContent() {
                 {user ? (
                     <div className="user-info">
                         <span>Welcome, <strong>{user.name}</strong>!</span>
-                        <button onClick={handleLogout} className="btn-logout">Logout</button>
+                        <div className="user-actions">
+                            <button
+                                onClick={() => setActiveView("account")}
+                                className={`btn-nav ${activeView === "account" ? "active" : ""}`}
+                            >
+                                👤 Account
+                            </button>
+                            <button
+                                onClick={() => setActiveView("racing")}
+                                className={`btn-nav ${activeView === "racing" ? "active" : ""}`}
+                            >
+                                🏎️ Racing
+                            </button>
+                            <button onClick={handleLogout} className="btn-logout">Logout</button>
+                        </div>
                     </div>
                 ) : (
                     <p className='Create_new'>Create new profile to get started</p>
@@ -41,6 +57,8 @@ function AppContent() {
                 <div className='Sign-up'>
                     {!user ? (
                         <SignUp />
+                    ) : activeView === "account" ? (
+                        <AccountManagement />
                     ) : (
                         <>
                             <RunRace />

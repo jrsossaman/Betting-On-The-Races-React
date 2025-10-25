@@ -59,6 +59,17 @@ export function RaceBettingProvider({ children }) {
         return { success: true, user: foundUser };
     };
 
+    const deleteUser = (username) => {
+        setRegisteredUsers(prevUsers =>
+            prevUsers.filter(u => u.username !== username)
+        );
+        // If the deleted user is the current user, log them out
+        if (user?.username === username) {
+            setUser(null);
+            setWallet(0);
+        }
+    };
+
     const value = {
         user,
         setUser: updateUserData,
@@ -72,6 +83,7 @@ export function RaceBettingProvider({ children }) {
         registeredUsers,
         registerUser,
         loginUser,
+        deleteUser,
     };
 
     return (
