@@ -262,11 +262,22 @@ function RunRace() {
                 <label>Bet Amount: $</label>
                 <input
                     type="number"
-                    value={betAmount}
-                    onChange={(e) => setBetAmount(Math.max(0, parseInt(e.target.value) || 0))}
+                    value={betAmount === 0 ? '' : betAmount}
+                    onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === '') {
+                            setBetAmount(0);
+                        } else {
+                            const num = Number(val);
+                            if (num >= 0) {
+                                setBetAmount(num);
+                            }
+                        }
+                    }}
                     disabled={isRacing || !betDriver}
                     min="0"
                     max={wallet}
+                    placeholder="0"
                 />
             </div>
 
