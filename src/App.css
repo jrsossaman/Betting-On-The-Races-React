@@ -1142,3 +1142,210 @@ select {
     grid-template-columns: 1fr;
   }
 }
+
+/* Driver Stats Styles */
+.driver-stats-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.stats-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.stats-header h2 {
+  color: #FFD700;
+  font-size: 32px;
+  margin: 0 0 8px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.stats-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin: 0;
+}
+
+.drivers-table {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table-header-row {
+  display: grid;
+  grid-template-columns: 60px 200px 80px 80px 100px 90px 100px;
+  gap: 15px;
+  background: rgba(255, 215, 0, 0.15);
+  padding: 15px 20px;
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+  font-weight: 700;
+  color: #FFD700;
+  font-size: 14px;
+}
+
+.drivers-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.driver-row {
+  display: grid;
+  grid-template-columns: 60px 200px 80px 80px 100px 90px 100px;
+  gap: 15px;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+  align-items: center;
+  color: rgba(255, 255, 255, 0.9);
+  transition: background 0.2s ease;
+}
+
+.driver-row:hover {
+  background: rgba(255, 215, 0, 0.08);
+}
+
+.driver-row:last-child {
+  border-bottom: none;
+}
+
+.col {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.col.rank {
+  font-weight: 700;
+  color: #FFD700;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.col.car-info {
+  gap: 10px;
+}
+
+.car-number {
+  background: linear-gradient(135deg, #FFD700, #FF9500);
+  color: #000;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 13px;
+  min-width: 50px;
+  text-align: center;
+}
+
+.driver-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.col.stat {
+  justify-content: center;
+  text-align: center;
+  font-weight: 600;
+  color: #FFD700;
+}
+
+.col.status {
+  justify-content: center;
+}
+
+.badge-active {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(76, 175, 80, 0.4);
+}
+
+.badge-inactive {
+  background: rgba(244, 67, 54, 0.2);
+  color: #F44336;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(244, 67, 54, 0.4);
+}
+
+@media (max-width: 1024px) {
+  .table-header-row,
+  .driver-row {
+    grid-template-columns: 50px 150px 70px 70px 80px 70px 80px;
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .car-number {
+    padding: 3px 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .table-header-row {
+    display: none;
+  }
+
+  .driver-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 15px;
+    background: rgba(255, 215, 0, 0.05);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    margin-bottom: 10px;
+    border-radius: 6px;
+  }
+
+  .driver-row:hover {
+    background: rgba(255, 215, 0, 0.1);
+  }
+
+  .col {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .col.rank {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    margin-bottom: 5px;
+  }
+
+  .col::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #FFD700;
+  }
+
+  .col.rank::before {
+    content: "";
+  }
+
+  .col.car-info {
+    grid-column: 1 / -1;
+    grid-template-columns: auto 1fr;
+  }
+
+  .col.car-info::before {
+    content: "";
+  }
+
+  .col.stat,
+  .col.status {
+    grid-template-columns: 80px 1fr;
+  }
+
+  .drivers-list {
+    max-height: none;
+  }
+}
