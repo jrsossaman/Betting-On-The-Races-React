@@ -187,14 +187,14 @@ function RunRace() {
                         <option className="dropdown" value="">-- Choose Driver --</option>
                         {drivers.map(driver => (
                             <option key={driver.number} value={driver.number} disabled={selectedDriver2?.number === driver.number}>
-                                {driver.name} (Bonus: +{driver.driveBonus})
+                                {driver.name} (#Car {driver.number})
                             </option>
                         ))}
                     </select>
                     {selectedDriver1 && (
                         <div className="driver-info">
                             <p><strong>{selectedDriver1.name}</strong></p>
-                            <p>Drive Bonus: +{selectedDriver1.driveBonus}</p>
+                            <p>Car Number: #{selectedDriver1.number}</p>
                             <p>Status: {selectedDriver1.status ? "✅ Active" : "❌ Inactive"}</p>
                         </div>
                     )}
@@ -215,14 +215,14 @@ function RunRace() {
                         <option  value="">-- Choose Driver --</option>
                         {drivers.map(driver => (
                             <option key={driver.number} value={driver.number} disabled={selectedDriver1?.number === driver.number}>
-                                {driver.name} (Bonus: +{driver.driveBonus})
+                                {driver.name} (#Car {driver.number})
                             </option>
                         ))}
                     </select>
                     {selectedDriver2 && (
                         <div className="driver-info">
                             <p><strong>{selectedDriver2.name}</strong></p>
-                            <p>Drive Bonus: +{selectedDriver2.driveBonus}</p>
+                            <p>Car Number: #{selectedDriver2.number}</p>
                             <p>Status: {selectedDriver2.status ? "✅ Active" : "❌ Inactive"}</p>
                         </div>
                     )}

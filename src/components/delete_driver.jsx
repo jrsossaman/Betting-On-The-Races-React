@@ -77,7 +77,7 @@ function DeleteDriver() {
                         <option value="">-- Choose Driver --</option>
                         {drivers.map(driver => (
                             <option key={driver.number} value={driver.number}>
-                                #{driver.number} - {driver.name} (Bonus: +{driver.driveBonus})
+                                Car #{driver.number} - {driver.name}
                             </option>
                         ))}
                     </select>
