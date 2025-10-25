@@ -45,7 +45,7 @@ function AppContent() {
                         <>
                             <RunRace />
                             <div className="driver-management">
-                                <h2>📊 Driver Management (CRUD Operations)</h2>
+                                <h2>📊 Driver Management</h2>
                                 <div className="management-container">
                                     <AddDriver />
                                     <DeleteDriver />
@@ -55,7 +55,7 @@ function AppContent() {
                     )}
                 </div>
             </div>
-            
+        
         </div>
     );
 }
