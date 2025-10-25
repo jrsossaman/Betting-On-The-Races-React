@@ -152,6 +152,63 @@ select{
   margin-right: 1%;
 }
 
+@media (max-width: 768px) {
+  .header {
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 10px;
+  }
+
+  .title {
+    font-size: clamp(20px, 5vw, 32px);
+    padding-top: 20px;
+  }
+
+  input[type=text], input[type=password],
+  input[type=number],
+  select {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  button[type=submit],
+  button[type=button],
+  .btn-add-funds {
+    width: 100%;
+    max-width: 100%;
+    margin: 10px auto;
+  }
+
+  .bet-options {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+@media (max-width: 480px) {
+  .header {
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 5px;
+  }
+
+  .title {
+    font-size: 24px;
+    padding-top: 15px;
+  }
+
+  input[type=text], input[type=password],
+  input[type=number],
+  select {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  button {
+    width: 100%;
+    margin: 8px auto;
+  }
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
