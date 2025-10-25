@@ -6,8 +6,28 @@ export function RaceBettingProvider({ children }) {
     const [user, setUser] = useState(null);
     const [wallet, setWallet] = useState(0);
     const [drivers, setDrivers] = useState([]);
+    const [driverStats, setDriverStats] = useState({}); // Track wins, races, points for each driver
     const [raceHistory, setRaceHistory] = useState([]);
     const [registeredUsers, setRegisteredUsers] = useState([]); // Store all registered users
+
+    // Initialize driver stats when drivers are loaded
+    useEffect(() => {
+        if (drivers.length > 0) {
+            setDriverStats(prevStats => {
+                const newStats = { ...prevStats };
+                drivers.forEach(driver => {
+                    if (!newStats[driver.number]) {
+                        newStats[driver.number] = {
+                            racesCompleted: 0,
+                            wins: 0,
+                            totalPoints: 0,
+                        };
+                    }
+                });
+                return newStats;
+            });
+        }
+    }, [drivers]);
 
     const updateWallet = (amount) => {
         setWallet(prev => prev + amount);
@@ -23,6 +43,35 @@ export function RaceBettingProvider({ children }) {
 
     const addRaceResult = (result) => {
         setRaceHistory(prev => [...prev, result]);
+
+        // Update driver stats
+        if (result.winner) {
+            const winnerNum = result.winner.number;
+            const loserNum = result.loser.number;
+
+            setDriverStats(prevStats => {
+                const newStats = { ...prevStats };
+
+                // Ensure both drivers exist in stats
+                if (!newStats[winnerNum]) {
+                    newStats[winnerNum] = { racesCompleted: 0, wins: 0, totalPoints: 0 };
+                }
+                if (!newStats[loserNum]) {
+                    newStats[loserNum] = { racesCompleted: 0, wins: 0, totalPoints: 0 };
+                }
+
+                // Update winner stats
+                newStats[winnerNum].racesCompleted += 1;
+                newStats[winnerNum].wins += 1;
+                newStats[winnerNum].totalPoints += 25; // Points for winning
+
+                // Update loser stats
+                newStats[loserNum].racesCompleted += 1;
+                newStats[loserNum].totalPoints += 10; // Points for participation
+
+                return newStats;
+            });
+        }
     };
 
     // Sync wallet changes to registered users
@@ -78,6 +127,8 @@ export function RaceBettingProvider({ children }) {
         updateWallet,
         drivers,
         setDrivers,
+        driverStats,
+        setDriverStats,
         raceHistory,
         addRaceResult,
         registeredUsers,

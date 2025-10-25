@@ -2,17 +2,24 @@ import React from "react";
 import { useRaceBetting } from "../context/race_betting_context";
 
 function DriverStats() {
-    const { drivers } = useRaceBetting();
+    const { drivers, driverStats } = useRaceBetting();
 
-    // Calculate mock stats based on driver number
-    const calculateStats = (driver) => {
-        const baseScore = driver.number * 10;
-        return {
-            racesCompleted: baseScore + 5,
-            wins: Math.floor(baseScore / 3),
-            totalPoints: baseScore * 15,
-            winRate: ((Math.floor(baseScore / 3) / (baseScore + 5)) * 100).toFixed(1),
-        };
+    // Sort drivers by wins, then by total points
+    const sortedDrivers = [...drivers].sort((a, b) => {
+        const statsA = driverStats[a.number] || { wins: 0, totalPoints: 0 };
+        const statsB = driverStats[b.number] || { wins: 0, totalPoints: 0 };
+        
+        if (statsB.wins !== statsA.wins) {
+            return statsB.wins - statsA.wins; // Sort by wins descending
+        }
+        return statsB.totalPoints - statsA.totalPoints; // Then by points descending
+    });
+
+    // Calculate win rate
+    const getWinRate = (driverNum) => {
+        const stats = driverStats[driverNum] || { racesCompleted: 0, wins: 0 };
+        if (stats.racesCompleted === 0) return "0.0";
+        return ((stats.wins / stats.racesCompleted) * 100).toFixed(1);
     };
 
     return (
@@ -34,8 +41,12 @@ function DriverStats() {
                 </div>
 
                 <div className="drivers-list">
-                    {drivers.map((driver, idx) => {
-                        const stats = calculateStats(driver);
+                    {sortedDrivers.map((driver, idx) => {
+                        const stats = driverStats[driver.number] || { 
+                            racesCompleted: 0, 
+                            wins: 0, 
+                            totalPoints: 0 
+                        };
                         return (
                             <div key={driver.number} className="driver-row">
                                 <div className="col rank">
@@ -51,7 +62,7 @@ function DriverStats() {
                                 <div className="col stat">{stats.racesCompleted}</div>
                                 <div className="col stat">{stats.wins}</div>
                                 <div className="col stat">{stats.totalPoints}</div>
-                                <div className="col stat">{stats.winRate}%</div>
+                                <div className="col stat">{getWinRate(driver.number)}%</div>
                                 <div className="col status">
                                     {driver.status ? (
                                         <span className="badge-active">🟢 Active</span>
