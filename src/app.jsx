@@ -2,13 +2,15 @@ import React, { useEffect } from 'react';
 import { RaceBettingProvider, useRaceBetting } from './context/race_betting_context';
 import SignUp from './components/sign-up';
 import RunRace from './components/run_race';
+import AddDriver from './components/add_driver';
+import DeleteDriver from './components/delete_driver';
 import driversData from './drivers.json';
 import './App.css';
 
 
 
 function AppContent() {
-    const { setDrivers, user, setUser, setWallet } = useRaceBetting();
+    const { setDrivers, user, setUser } = useRaceBetting();
 
     useEffect(() => {
         // Load drivers from JSON file on component mount
@@ -40,11 +42,20 @@ function AppContent() {
                     {!user ? (
                         <SignUp />
                     ) : (
-                        <RunRace />
+                        <>
+                            <RunRace />
+                            <div className="driver-management">
+                                <h2>📊 Driver Management</h2>
+                                <div className="management-container">
+                                    <AddDriver />
+                                    <DeleteDriver />
+                                </div>
+                            </div>
+                        </>
                     )}
                 </div>
             </div>
-            
+        
         </div>
     );
 }
