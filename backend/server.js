@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const Driver = require('./models/Driver');
+const User = require('./models/User');
 
 dotenv.config();
 
@@ -10,24 +13,270 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// In-memory database
-const database = {
-  drivers: [
-    { teamId: 2, number: 1, name: 'Benjamin', status: true, driveBonus: 2 },
-    { teamId: 2, number: 2, name: 'Jonathan', status: true, driveBonus: 2 },
-    { teamId: 2, number: 3, name: 'Andrew', status: true, driveBonus: 2 },
-    { teamId: 2, number: 4, name: 'Christopher', status: true, driveBonus: 2 },
-  ],
-  users: []
-};
+// MongoDB Connection
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/racing_betting', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB connected successfully'))
+.catch(err => console.error('MongoDB connection error:', err));
+
+// ==================== CRUD ENDPOINTS ====================
+
+// ---------- DRIVER CRUD OPERATIONS ----------
+
+// CREATE - Create new driver(s)
+app.post('/api/drivers', async (req, res) => {
+  try {
+    const teamId = parseInt(req.query.teamId) || 2;
+    const { drivers } = req.body;
+
+    if (!drivers || !Array.isArray(drivers)) {
+      return res.status(400).json({ error: 'drivers array required in body' });
+    }
+
+    const driversToCreate = drivers.map(driver => ({
+      ...driver,
+      teamId,
+    }));
+
+    const createdDrivers = await Driver.insertMany(driversToCreate);
+
+    res.status(201).json({
+      success: true,
+      message: 'Drivers created successfully',
+      data: createdDrivers,
+    });
+  } catch (error) {
+    console.error('Error creating drivers:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// READ - Get all drivers
+app.get('/api/drivers', async (req, res) => {
+  try {
+    const teamId = parseInt(req.query.teamId) || 2;
+    const drivers = await Driver.find({ teamId });
+
+    res.json({
+      success: true,
+      count: drivers.length,
+      data: drivers,
+    });
+  } catch (error) {
+    console.error('Error fetching drivers:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// READ - Get a single driver by ID
+app.get('/api/drivers/:id', async (req, res) => {
+  try {
+    const driver = await Driver.findById(req.params.id);
+
+    if (!driver) {
+      return res.status(404).json({ error: 'Driver not found' });
+    }
+
+    res.json({
+      success: true,
+      data: driver,
+    });
+  } catch (error) {
+    console.error('Error fetching driver:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// UPDATE - Update a driver by ID
+app.put('/api/drivers/:id', async (req, res) => {
+  try {
+    const driver = await Driver.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!driver) {
+      return res.status(404).json({ error: 'Driver not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Driver updated successfully',
+      data: driver,
+    });
+  } catch (error) {
+    console.error('Error updating driver:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE - Delete a driver by ID
+app.delete('/api/drivers/:id', async (req, res) => {
+  try {
+    const driver = await Driver.findByIdAndDelete(req.params.id);
+
+    if (!driver) {
+      return res.status(404).json({ error: 'Driver not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Driver deleted successfully',
+      data: driver,
+    });
+  } catch (error) {
+    console.error('Error deleting driver:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ---------- USER CRUD OPERATIONS ----------
+
+// CREATE - Create new user
+app.post('/api/users', async (req, res) => {
+  try {
+    const teamId = parseInt(req.query.teamId) || 2;
+    const { username, password, name, wallet } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: 'username and password required' });
+    }
+
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+
+    const newUser = await User.create({
+      teamId,
+      username,
+      password,
+      name: name || username,
+      wallet: wallet || 1000,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      data: newUser,
+    });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// READ - Get all users
+app.get('/api/users', async (req, res) => {
+  try {
+    const teamId = parseInt(req.query.teamId) || 2;
+    const users = await User.find({ teamId });
+
+    res.json({
+      success: true,
+      count: users.length,
+      data: users,
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// READ - Get a single user by ID
+app.get('/api/users/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// READ - Get user by username
+app.get('/api/users/username/:username', async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// UPDATE - Update a user by ID
+app.put('/api/users/:id', async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'User updated successfully',
+      data: user,
+    });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE - Delete a user by ID
+app.delete('/api/users/:id', async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'User deleted successfully',
+      data: user,
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ==================== LEGACY ENDPOINTS (for backwards compatibility) ====================
 
 // GET /get/all - Fetch all drivers and users for a team
-app.get('/get/all', (req, res) => {
+app.get('/get/all', async (req, res) => {
   try {
     const teamId = parseInt(req.query.teamId) || 2;
     
-    const drivers = database.drivers.filter(d => d.teamId === teamId);
-    const users = database.users.filter(u => u.teamId === teamId);
+    const drivers = await Driver.find({ teamId });
+    const users = await User.find({ teamId });
 
     res.json({
       response: [],
@@ -42,8 +291,8 @@ app.get('/get/all', (req, res) => {
   }
 });
 
-// POST /drivers - Create new driver(s)
-app.post('/drivers', (req, res) => {
+// POST /drivers - Create new driver(s) (legacy)
+app.post('/drivers', async (req, res) => {
   try {
     const teamId = parseInt(req.query.teamId) || 2;
     const { drivers } = req.body;
@@ -57,12 +306,12 @@ app.post('/drivers', (req, res) => {
       teamId,
     }));
 
-    database.drivers.push(...createdDrivers);
+    const result = await Driver.insertMany(createdDrivers);
 
     res.json({
       response: [],
       body: {
-        drivers: createdDrivers,
+        drivers: result,
       },
     });
   } catch (error) {
@@ -71,8 +320,8 @@ app.post('/drivers', (req, res) => {
   }
 });
 
-// PATCH /update/data - Update driver or user data
-app.patch('/update/data', (req, res) => {
+// PATCH /update/data - Update driver or user data (legacy)
+app.patch('/update/data', async (req, res) => {
   try {
     const teamId = parseInt(req.query.teamId) || 2;
     const { body } = req.body;
@@ -87,12 +336,12 @@ app.patch('/update/data', (req, res) => {
     // Update drivers if provided
     if (body.drivers && Array.isArray(body.drivers)) {
       for (const driverUpdate of body.drivers) {
-        const driver = database.drivers.find(
-          d => d.teamId === teamId && d.number === driverUpdate.number
+        const driver = await Driver.findOneAndUpdate(
+          { teamId, number: driverUpdate.number },
+          driverUpdate,
+          { new: true, upsert: false }
         );
         if (driver) {
-          if (driverUpdate.status !== undefined) driver.status = driverUpdate.status;
-          if (driverUpdate.driveBonus !== undefined) driver.driveBonus = driverUpdate.driveBonus;
           updatedDrivers.push(driver);
         }
       }
@@ -101,25 +350,12 @@ app.patch('/update/data', (req, res) => {
     // Update users if provided
     if (body.users && Array.isArray(body.users)) {
       for (const userUpdate of body.users) {
-        const user = database.users.find(
-          u => u.teamId === teamId && u.username === userUpdate.username
+        const user = await User.findOneAndUpdate(
+          { teamId, username: userUpdate.username },
+          userUpdate,
+          { new: true, upsert: true }
         );
-        if (user) {
-          if (userUpdate.wallet !== undefined) user.wallet = userUpdate.wallet;
-          if (userUpdate.name !== undefined) user.name = userUpdate.name;
-          updatedUsers.push(user);
-        } else if (userUpdate.username) {
-          // If user doesn't exist, create it
-          const newUser = {
-            teamId,
-            username: userUpdate.username,
-            password: userUpdate.password || '',
-            name: userUpdate.name || userUpdate.username,
-            wallet: userUpdate.wallet || 1000,
-          };
-          database.users.push(newUser);
-          updatedUsers.push(newUser);
-        }
+        updatedUsers.push(user);
       }
     }
 
@@ -136,8 +372,8 @@ app.patch('/update/data', (req, res) => {
   }
 });
 
-// DELETE /delete/user - Delete a user
-app.delete('/delete/user', (req, res) => {
+// DELETE /delete/user - Delete a user (legacy)
+app.delete('/delete/user', async (req, res) => {
   try {
     const teamId = parseInt(req.query.teamId) || 2;
     const { username } = req.body;
@@ -146,20 +382,16 @@ app.delete('/delete/user', (req, res) => {
       return res.status(400).json({ error: 'username required' });
     }
 
-    const userIndex = database.users.findIndex(
-      u => u.teamId === teamId && u.username === username
-    );
+    const deletedUser = await User.findOneAndDelete({ teamId, username });
 
-    if (userIndex === -1) {
+    if (!deletedUser) {
       return res.status(404).json({ error: 'User not found' });
     }
-
-    const deletedUser = database.users.splice(userIndex, 1);
 
     res.json({
       response: [],
       body: {
-        users: deletedUser,
+        users: [deletedUser],
       },
     });
   } catch (error) {
