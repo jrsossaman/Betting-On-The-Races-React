@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { RaceBettingProvider, useRaceBetting } from './context/race_betting_context';
 import SignUp from './components/sign-up';
 import RunRace from './components/run_race';
-import AddDriver from './components/add_driver';
-import DeleteDriver from './components/delete_driver';
+import DriverStats from './components/driver_stats';
 import AccountManagement from './components/account_management';
 import driversData from './drivers.json';
 import './App.css';
@@ -62,13 +61,7 @@ function AppContent() {
                     ) : (
                         <>
                             <RunRace />
-                            <div className="driver-management">
-                                <h2>📊 Driver Management</h2>
-                                <div className="management-container">
-                                    <AddDriver />
-                                    <DeleteDriver />
-                                </div>
-                            </div>
+                            <DriverStats />
                         </>
                     )}
                 </div>
