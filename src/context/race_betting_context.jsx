@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useState, useEffect, useRef} from "react";
+import React, {createContext, useContext, useState, useEffect} from "react";
 
 export const raceBettingContext = createContext();
 
@@ -9,7 +9,6 @@ export function RaceBettingProvider({ children }) {
     const [driverStats, setDriverStats] = useState({}); // Track wins, races, points for each driver
     const [raceHistory, setRaceHistory] = useState([]);
     const [registeredUsers, setRegisteredUsers] = useState([]); // Store all registered users
-    const processedRacesRef = useRef(new Set()); // Track which races have been processed for stats
 
     // Initialize driver stats when drivers are loaded
     useEffect(() => {
@@ -30,44 +29,49 @@ export function RaceBettingProvider({ children }) {
         }
     }, [drivers]);
 
-    // Update driver stats when race history changes
+    // Recalculate driver stats whenever race history changes
     useEffect(() => {
         if (raceHistory.length > 0) {
-            const lastRace = raceHistory[raceHistory.length - 1];
-            const raceKey = `${lastRace.timestamp}-${lastRace.winner?.number}-${lastRace.loser?.number}`;
+            // Recalculate all stats from race history
+            const newStats = {};
             
-            // Only process if we haven't already processed this race
-            if (!processedRacesRef.current.has(raceKey) && lastRace.winner) {
-                processedRacesRef.current.add(raceKey);
-                
-                const winnerNum = lastRace.winner.number;
-                const loserNum = lastRace.loser.number;
-
-                setDriverStats(prevStats => {
-                    const newStats = { ...prevStats };
-
-                    // Ensure both drivers exist in stats
+            // Initialize stats for all drivers
+            drivers.forEach(driver => {
+                newStats[driver.number] = {
+                    racesCompleted: 0,
+                    wins: 0,
+                    totalPoints: 0,
+                };
+            });
+            
+            // Calculate stats from all races in history
+            raceHistory.forEach(race => {
+                if (race.winner && race.loser) {
+                    const winnerNum = race.winner.number;
+                    const loserNum = race.loser.number;
+                    
+                    // Ensure drivers exist
                     if (!newStats[winnerNum]) {
                         newStats[winnerNum] = { racesCompleted: 0, wins: 0, totalPoints: 0 };
                     }
                     if (!newStats[loserNum]) {
                         newStats[loserNum] = { racesCompleted: 0, wins: 0, totalPoints: 0 };
                     }
-
+                    
                     // Update winner stats
                     newStats[winnerNum].racesCompleted += 1;
                     newStats[winnerNum].wins += 1;
-                    newStats[winnerNum].totalPoints += 25; // Points for winning
-
+                    newStats[winnerNum].totalPoints += 25;
+                    
                     // Update loser stats
                     newStats[loserNum].racesCompleted += 1;
-                    newStats[loserNum].totalPoints += 10; // Points for participation
-
-                    return newStats;
-                });
-            }
+                    newStats[loserNum].totalPoints += 10;
+                }
+            });
+            
+            setDriverStats(newStats);
         }
-    }, [raceHistory]);
+    }, [raceHistory, drivers]);
 
     const updateWallet = (amount) => {
         setWallet(prev => prev + amount);
