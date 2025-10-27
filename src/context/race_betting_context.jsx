@@ -118,12 +118,15 @@ export function RaceBettingProvider({ children }) {
     // Update user stats when race history changes
     useEffect(() => {
         if (user && raceHistory.length > 0) {
-            // Calculate races played, races won, and total winnings from race history
+            // Filter races for current user only
+            const userRaces = raceHistory.filter(race => race.username === user.username);
+            
+            // Calculate races played, races won, and total winnings from user's race history
             let racesPlayed = 0;
             let racesWon = 0;
             let totalWinnings = 0;
 
-            raceHistory.forEach(race => {
+            userRaces.forEach(race => {
                 if (race.userWon !== undefined) {
                     racesPlayed += 1;
                     if (race.userWon) {
