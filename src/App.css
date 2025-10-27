@@ -179,7 +179,22 @@ select {
   border-radius: 5px;
   cursor: pointer;
   padding: 12px 20px;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.bet-button:hover {
+  background-color: rgba(75, 49, 49, 0.4);
+  border-color: #FFD700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+}
+
+.bet-button.selected {
+  background: linear-gradient(135deg, #FFD700, #FF9500);
+  color: #000;
+  border: 2px solid #FFD700;
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+  transform: scale(1.05);
 }
 
 .btn-logout {
