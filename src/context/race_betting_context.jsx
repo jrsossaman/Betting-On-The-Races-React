@@ -42,7 +42,20 @@ export function RaceBettingProvider({ children }) {
     };
 
     const addRaceResult = (result) => {
-        setRaceHistory(prev => [...prev, result]);
+        setRaceHistory(prev => {
+            // Check if this race already exists to prevent duplicates
+            const isDuplicate = prev.some(r => 
+                r.timestamp === result.timestamp &&
+                r.winner?.number === result.winner?.number &&
+                r.loser?.number === result.loser?.number
+            );
+            
+            if (isDuplicate) {
+                return prev; // Don't add duplicate
+            }
+            
+            return [...prev, result];
+        });
 
         // Update driver stats
         if (result.winner) {
