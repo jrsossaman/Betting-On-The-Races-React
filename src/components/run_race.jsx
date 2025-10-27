@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import diceRoller from "./dice_roller";
 import { useRaceBetting } from "../context/race_betting_context";
 
@@ -13,6 +13,16 @@ function RunRace() {
     const [error, setError] = useState("");
     const [raceMessage, setRaceMessage] = useState("");
     const [addMoneyInput, setAddMoneyInput] = useState("");
+
+    // Auto-dismiss race message after 8 seconds
+    useEffect(() => {
+        if (raceMessage) {
+            const timer = setTimeout(() => {
+                setRaceMessage("");
+            }, 8000);
+            return () => clearTimeout(timer);
+        }
+    }, [raceMessage]);
 
     // Validate inputs before race
     const validateRace = () => {
@@ -80,15 +90,15 @@ function RunRace() {
 
                 let payout = 0;
                 if (userWon) {
-                    // User wins 2x their bet (1x initial + 1x winnings)
-                    payout = betAmount * 2;
+                    // User wins: return their bet + equal amount as winnings
+                    payout = betAmount * 2; // Return bet + equal winnings
                     updateWallet(payout);
                     setRaceMessage(
-                        `🎉 ${winner.name} wins! Your bet on ${winner.name} paid off! You won $${payout}!`
+                        `🎉 ${winner.name} wins! Your bet on ${winner.name} paid off! You won $${betAmount}!`
                     );
                 } else {
                     // User loses their bet
-                    payout = 0;
+                    payout = betAmount; // Store the amount lost
                     setRaceMessage(
                         `😞 ${winner.name} wins! Your bet on ${betDriver.name} lost. You lost $${betAmount}.`
                     );
@@ -172,7 +182,18 @@ function RunRace() {
             </div>
 
             {error && <div className="error-message">{error}</div>}
-            {raceMessage && <div className="race-message">{raceMessage}</div>}
+            {raceMessage && (
+                <div className="race-message">
+                    <span>{raceMessage}</span>
+                    <button 
+                        className="message-close-btn"
+                        onClick={() => setRaceMessage("")}
+                        title="Close message"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
 
             <div className="race-setup">
                 <div className="driver-selection">
@@ -321,7 +342,7 @@ function RunRace() {
                             <p className="refund">Refund: ${raceResult.betAmount}</p>
                         ) : (
                             <p className={raceResult.userWon ? "win" : "loss"}>
-                                {raceResult.userWon ? "✅ Won" : "❌ Lost"}: ${Math.abs(raceResult.payout - raceResult.betAmount)}
+                                {raceResult.userWon ? "✅ Won" : "❌ Lost"}: ${raceResult.userWon ? raceResult.betAmount : raceResult.payout}
                             </p>
                         )}
                         <p className="timestamp">{raceResult.timestamp}</p>
