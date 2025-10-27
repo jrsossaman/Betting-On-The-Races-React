@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/Betting-On-The-Races-React/static/css/main.2554e96d.css",
+    "main.js": "/Betting-On-The-Races-React/static/js/main.787fa250.js",
+    "static/js/453.c599c13c.chunk.js": "/Betting-On-The-Races-React/static/js/453.c599c13c.chunk.js",
+    "static/media/Racing_Car.jpg": "/Betting-On-The-Races-React/static/media/Racing_Car.463b779a6541a3c0a71e.jpg",
+    "index.html": "/Betting-On-The-Races-React/index.html",
+    "main.2554e96d.css.map": "/Betting-On-The-Races-React/static/css/main.2554e96d.css.map",
+    "main.787fa250.js.map": "/Betting-On-The-Races-React/static/js/main.787fa250.js.map",
+    "453.c599c13c.chunk.js.map": "/Betting-On-The-Races-React/static/js/453.c599c13c.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2554e96d.css",
+    "static/js/main.787fa250.js"
+  ]
+}
