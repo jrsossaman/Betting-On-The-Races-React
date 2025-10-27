@@ -3,7 +3,7 @@ import diceRoller from "./dice_roller";
 import { useRaceBetting } from "../context/race_betting_context";
 
 function RunRace() {
-    const { wallet, updateWallet, addRaceResult, drivers } = useRaceBetting();
+    const { user, wallet, updateWallet, addRaceResult, drivers } = useRaceBetting();
     const [selectedDriver1, setSelectedDriver1] = useState(null);
     const [selectedDriver2, setSelectedDriver2] = useState(null);
     const [betDriver, setBetDriver] = useState(null); // New: track who they're betting on
@@ -12,6 +12,7 @@ function RunRace() {
     const [isRacing, setIsRacing] = useState(false);
     const [error, setError] = useState("");
     const [raceMessage, setRaceMessage] = useState("");
+    const [messageType, setMessageType] = useState(""); // "win", "loss", or "tie"
     const [addMoneyInput, setAddMoneyInput] = useState("");
 
     // Auto-dismiss race message after 8 seconds
@@ -74,6 +75,7 @@ function RunRace() {
             if (!winner) {
                 // Tie case - return bet to user
                 setRaceMessage("🤝 It's a tie! Your bet has been returned.");
+                setMessageType("tie");
                 updateWallet(betAmount);
                 setRaceResult({
                     driver1: selectedDriver1,
@@ -93,12 +95,14 @@ function RunRace() {
                     // User wins: return their bet + equal amount as winnings
                     payout = betAmount * 2; // Return bet + equal winnings
                     updateWallet(payout);
+                    setMessageType("win");
                     setRaceMessage(
                         `🎉 ${winner.name} wins! Your bet on ${winner.name} paid off! You won $${betAmount}!`
                     );
                 } else {
                     // User loses their bet
                     payout = betAmount; // Store the amount lost
+                    setMessageType("loss");
                     setRaceMessage(
                         `😞 ${winner.name} wins! Your bet on ${betDriver.name} lost. You lost $${betAmount}.`
                     );
@@ -128,6 +132,7 @@ function RunRace() {
                     betDriver,
                     betAmount,
                     userWon,
+                    username: user?.username,
                     timestamp: new Date().toLocaleString(),
                 });
             }
@@ -149,6 +154,7 @@ function RunRace() {
         setBetAmount(0);
         setRaceResult(null);
         setRaceMessage("");
+        setMessageType("");
         setError("");
     };
 
@@ -183,7 +189,7 @@ function RunRace() {
 
             {error && <div className="error-message">{error}</div>}
             {raceMessage && (
-                <div className="race-message">
+                <div className={`race-message race-message-${messageType}`}>
                     <span>{raceMessage}</span>
                     <button 
                         className="message-close-btn"

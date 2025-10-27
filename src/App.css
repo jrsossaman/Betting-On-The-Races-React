@@ -506,6 +506,30 @@ select {
   gap: 15px;
 }
 
+/* Loss message - Red */
+.race-message-loss {
+  background: rgba(244, 67, 54, 0.95);
+  color: #ffebee;
+  border-left-color: #f44336;
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+}
+
+/* Tie message - Orange */
+.race-message-tie {
+  background: rgba(255, 152, 0, 0.95);
+  color: #fff3e0;
+  border-left-color: #ff9800;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+}
+
+/* Win message - Green (default) */
+.race-message-win {
+  background: rgba(76, 175, 80, 0.95);
+  color: #e8f5e9;
+  border-left-color: #4CAF50;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
 .message-close-btn {
   background: none;
   border: none;
