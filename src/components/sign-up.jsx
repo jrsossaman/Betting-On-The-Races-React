@@ -55,6 +55,7 @@ function SignUp() {
                 password: form.password,
                 wallet: 1000,
                 races: 0,
+                racesWon: 0,
                 totalWinnings: 0,
             };
 

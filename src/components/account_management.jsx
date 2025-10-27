@@ -55,6 +55,7 @@ function AccountManagement() {
     };
 
     const totalRacesPlayed = registeredUsers.find(u => u.username === user?.username)?.races || 0;
+    const totalRacesWon = registeredUsers.find(u => u.username === user?.username)?.racesWon || 0;
     const totalWinnings = registeredUsers.find(u => u.username === user?.username)?.totalWinnings || 0;
 
     return (
@@ -273,7 +274,7 @@ function AccountManagement() {
                                     <h4>Win Rate</h4>
                                     <p className="stat-value">
                                         {totalRacesPlayed > 0
-                                            ? ((totalWinnings / totalRacesPlayed) * 100).toFixed(1)
+                                            ? ((totalRacesWon / totalRacesPlayed) * 100).toFixed(1)
                                             : "0"}%
                                     </p>
                                 </div>
