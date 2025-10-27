@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import diceRoller from "./dice_roller";
 import { useRaceBetting } from "../context/race_betting_context";
 
@@ -13,6 +13,16 @@ function RunRace() {
     const [error, setError] = useState("");
     const [raceMessage, setRaceMessage] = useState("");
     const [addMoneyInput, setAddMoneyInput] = useState("");
+
+    // Auto-dismiss race message after 8 seconds
+    useEffect(() => {
+        if (raceMessage) {
+            const timer = setTimeout(() => {
+                setRaceMessage("");
+            }, 8000);
+            return () => clearTimeout(timer);
+        }
+    }, [raceMessage]);
 
     // Validate inputs before race
     const validateRace = () => {
@@ -172,7 +182,18 @@ function RunRace() {
             </div>
 
             {error && <div className="error-message">{error}</div>}
-            {raceMessage && <div className="race-message">{raceMessage}</div>}
+            {raceMessage && (
+                <div className="race-message">
+                    <span>{raceMessage}</span>
+                    <button 
+                        className="message-close-btn"
+                        onClick={() => setRaceMessage("")}
+                        title="Close message"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
 
             <div className="race-setup">
                 <div className="driver-selection">

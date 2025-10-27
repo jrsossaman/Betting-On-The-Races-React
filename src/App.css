@@ -500,6 +500,32 @@ select {
   max-width: 500px;
   z-index: 1000;
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.message-close-btn {
+  background: none;
+  border: none;
+  color: #e8f5e9;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  min-width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.message-close-btn:hover {
+  background: rgba(0, 0, 0, 0.2);
+  transform: scale(1.1);
 }
 
 .form-toggle {
