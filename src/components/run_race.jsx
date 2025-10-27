@@ -91,14 +91,14 @@ function RunRace() {
                 let payout = 0;
                 if (userWon) {
                     // User wins: return their bet + equal amount as winnings
-                    payout = betAmount; // Winnings only (not including the original bet back)
+                    payout = betAmount * 2; // Return bet + equal winnings
                     updateWallet(payout);
                     setRaceMessage(
-                        `🎉 ${winner.name} wins! Your bet on ${winner.name} paid off! You won $${payout}!`
+                        `🎉 ${winner.name} wins! Your bet on ${winner.name} paid off! You won $${betAmount}!`
                     );
                 } else {
                     // User loses their bet
-                    payout = 0;
+                    payout = betAmount; // Store the amount lost
                     setRaceMessage(
                         `😞 ${winner.name} wins! Your bet on ${betDriver.name} lost. You lost $${betAmount}.`
                     );
@@ -342,7 +342,7 @@ function RunRace() {
                             <p className="refund">Refund: ${raceResult.betAmount}</p>
                         ) : (
                             <p className={raceResult.userWon ? "win" : "loss"}>
-                                {raceResult.userWon ? "✅ Won" : "❌ Lost"}: ${Math.abs(raceResult.payout - raceResult.betAmount)}
+                                {raceResult.userWon ? "✅ Won" : "❌ Lost"}: ${raceResult.userWon ? raceResult.betAmount : raceResult.payout}
                             </p>
                         )}
                         <p className="timestamp">{raceResult.timestamp}</p>
