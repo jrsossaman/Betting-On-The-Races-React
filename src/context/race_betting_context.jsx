@@ -118,14 +118,16 @@ export function RaceBettingProvider({ children }) {
     // Update user stats when race history changes
     useEffect(() => {
         if (user && raceHistory.length > 0) {
-            // Calculate races played and total winnings from race history
+            // Calculate races played, races won, and total winnings from race history
             let racesPlayed = 0;
+            let racesWon = 0;
             let totalWinnings = 0;
 
             raceHistory.forEach(race => {
                 if (race.userWon !== undefined) {
                     racesPlayed += 1;
                     if (race.userWon) {
+                        racesWon += 1;
                         totalWinnings += race.betAmount; // Add winnings (not including bet return)
                     }
                 }
@@ -134,7 +136,7 @@ export function RaceBettingProvider({ children }) {
             setRegisteredUsers(prevUsers =>
                 prevUsers.map(u =>
                     u.username === user.username
-                        ? { ...u, races: racesPlayed, totalWinnings: totalWinnings }
+                        ? { ...u, races: racesPlayed, racesWon: racesWon, totalWinnings: totalWinnings }
                         : u
                 )
             );
