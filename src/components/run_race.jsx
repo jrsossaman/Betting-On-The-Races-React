@@ -90,8 +90,8 @@ function RunRace() {
 
                 let payout = 0;
                 if (userWon) {
-                    // User wins 2x their bet (1x initial + 1x winnings)
-                    payout = betAmount * 2;
+                    // User wins: return their bet + equal amount as winnings
+                    payout = betAmount; // Winnings only (not including the original bet back)
                     updateWallet(payout);
                     setRaceMessage(
                         `🎉 ${winner.name} wins! Your bet on ${winner.name} paid off! You won $${payout}!`
