@@ -115,6 +115,32 @@ export function RaceBettingProvider({ children }) {
         }
     }, [wallet, user]);
 
+    // Update user stats when race history changes
+    useEffect(() => {
+        if (user && raceHistory.length > 0) {
+            // Calculate races played and total winnings from race history
+            let racesPlayed = 0;
+            let totalWinnings = 0;
+
+            raceHistory.forEach(race => {
+                if (race.userWon !== undefined) {
+                    racesPlayed += 1;
+                    if (race.userWon) {
+                        totalWinnings += race.betAmount; // Add winnings (not including bet return)
+                    }
+                }
+            });
+
+            setRegisteredUsers(prevUsers =>
+                prevUsers.map(u =>
+                    u.username === user.username
+                        ? { ...u, races: racesPlayed, totalWinnings: totalWinnings }
+                        : u
+                )
+            );
+        }
+    }, [raceHistory, user]);
+
     const registerUser = (userCredentials) => {
         // Check if username already exists
         if (registeredUsers.some(u => u.username === userCredentials.username)) {

@@ -54,6 +54,8 @@ function SignUp() {
                 username: form.username,
                 password: form.password,
                 wallet: 1000,
+                races: 0,
+                totalWinnings: 0,
             };
 
             const result = registerUser(newUser);
