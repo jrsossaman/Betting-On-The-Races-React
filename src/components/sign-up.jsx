@@ -1,145 +1,180 @@
 import React, { useState } from "react";
 import { useRaceBetting } from "../context/race_betting_context";
-
+import createUser from "../api/createUser";
+import getUser from "../api/getUser";
 
 function SignUp() {
-    const { setUser, setWallet, registerUser, loginUser } = useRaceBetting();
-    const [isLogin, setIsLogin] = useState(false);
-    const [form, setForm] = useState({
-        name: '',
-        username: '',
-        password: '',
+  const { setUser, setWallet } = useRaceBetting();
+  const [isLogin, setIsLogin] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    username: "",
+    password: "",
+    email: "",
+    phone: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
     });
-    const [error, setError] = useState('');
+  };
 
-    const handleChange = (e) => {
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value,
-        });
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
+    if (!form.username || !form.password || (!isLogin && !form.name)) {
+      setError(isLogin ? "Username and password are required." : "All fields are required.");
+      return;
+    }
 
-        if (isLogin) {
-            // LOGIN MODE
-            if (!form.username || !form.password) {
-                setError('Username and password are required.');
-                return;
-            }
+    try {
+      setLoading(true);
 
-            const result = loginUser(form.username, form.password);
-            if (!result.success) {
-                setError(result.message);
-                return;
-            }
-
-            // Login successful
-            const userData = result.user;
-            setUser(userData);
-            setWallet(userData.wallet);
-            alert(`Welcome back, ${userData.name}!`);
-            setForm({ name: '', username: '', password: '' });
-        } else {
-            // SIGNUP MODE
-            if (!form.name || !form.username || !form.password) {
-                setError('All fields are required.');
-                return;
-            }
-
-            const newUser = {
-                name: form.name,
-                username: form.username,
-                password: form.password,
-                wallet: 1000,
-                races: 0,
-                racesWon: 0,
-                totalWinnings: 0,
-            };
-
-            const result = registerUser(newUser);
-            if (!result.success) {
-                setError(result.message);
-                return;
-            }
-
-            // Signup successful - log them in
-            setUser(newUser);
-            setWallet(1000);
-            alert(`Welcome ${form.name}! You've been given $1000 to start betting!`);
-            setForm({ name: '', username: '', password: '' });
+      if (isLogin) {
+        // LOGIN MODE
+        const user = await getUser(form.username, form.password);
+        if (!user) {
+          setError("Invalid username or password.");
+          return;
         }
-    };
 
-    const toggleMode = () => {
-        setIsLogin(!isLogin);
-        setForm({ name: '', username: '', password: '' });
-        setError('');
-    };
+        // Login successful
+        setUser(user);
+        setWallet(user.wallet);
+        alert(`Welcome back, ${user.name}!`);
+        setForm({ name: "", username: "", password: "", email: "", phone: "" });
 
-    return (
-        <div className="signup-container">
-            <h2>{isLogin ? 'Login to Your Account' : 'Create Your Profile'}</h2>
-            
-            {error && <div className="error-message">{error}</div>}
+      } else {
+        // SIGNUP MODE
+        const newUser = {
+          name: form.name,
+          username: form.username,
+          password: form.password,
+          wallet: 1000, // initial balance
+          email: form.email || "",
+          phone: form.phone || "",
+        };
 
-            <form onSubmit={handleSubmit}>
-                {!isLogin && (
-                    <div>
-                        <label>Name:</label>
-                        <input
-                            type="text"
-                            name="name"
-                            value={form.name}
-                            onChange={handleChange}
-                            required={!isLogin}
-                            placeholder="Enter your name"
-                        />
-                    </div>
-                )}
-                <div>
-                    <label>Username:</label>
-                    <input
-                        type="text"
-                        name="username"
-                        value={form.username}
-                        onChange={handleChange}
-                        required
-                        placeholder="Enter username"
-                    />
-                </div>
-                <div>
-                    <label>Password:</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={form.password}
-                        onChange={handleChange}
-                        required
-                        placeholder="Enter password"
-                    />
-                </div>
-                <button type="submit">
-                    {isLogin ? 'Login' : 'Create Profile'}
-                </button>
-            </form>
+        // Call API to create user
+        await createUser(
+          newUser.name,
+          newUser.username,
+          newUser.password,
+          newUser.wallet,
+          newUser.email,
+          newUser.phone
+        );
 
-            <div className="auth-toggle">
-                <p>
-                    {isLogin ? "Don't have an account? " : "Already have an account? "}
-                    <button 
-                        type="button" 
-                        onClick={toggleMode}
-                        className="toggle-button"
-                    >
-                        {isLogin ? 'Create Profile' : 'Login'}
-                    </button>
-                </p>
+        // Signup successful - log them in
+        setUser(newUser);
+        setWallet(newUser.wallet);
+        alert(`Welcome ${newUser.name}! You've been given $1000 to start betting!`);
+        setForm({ name: "", username: "", password: "", email: "", phone: "" });
+      }
+    } catch (err) {
+      console.error(err);
+      setError("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setForm({ name: "", username: "", password: "", email: "", phone: "" });
+    setError("");
+  };
+
+  return (
+    <div className="signup-container">
+      <h2>{isLogin ? "Login to Your Account" : "Create Your Profile"}</h2>
+
+      {error && <div className="error-message">{error}</div>}
+
+      <form onSubmit={handleSubmit}>
+        {!isLogin && (
+          <>
+            <div>
+              <label>Name:</label>
+              <input
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                required={!isLogin}
+                placeholder="Enter your name"
+              />
             </div>
+            <div>
+              <label>Email (optional):</label>
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="Enter email"
+              />
+            </div>
+            <div>
+              <label>Phone (optional):</label>
+              <input
+                type="text"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                placeholder="Enter phone number"
+              />
+            </div>
+          </>
+        )}
+
+        <div>
+          <label>Username:</label>
+          <input
+            type="text"
+            name="username"
+            value={form.username}
+            onChange={handleChange}
+            required
+            placeholder="Enter username"
+          />
         </div>
-    );
+
+        <div>
+          <label>Password:</label>
+          <input
+            type="password"
+            name="password"
+            value={form.password}
+            onChange={handleChange}
+            required
+            placeholder="Enter password"
+          />
+        </div>
+
+        <button type="submit" disabled={loading}>
+          {loading ? (isLogin ? "Logging in..." : "Creating...") : isLogin ? "Login" : "Create Profile"}
+        </button>
+      </form>
+
+      <div className="auth-toggle">
+        <p>
+          {isLogin ? "Don't have an account? " : "Already have an account? "}
+          <button type="button" onClick={toggleMode} className="toggle-button">
+            {isLogin ? "Create Profile" : "Login"}
+          </button>
+        </p>
+      </div>
+    </div>
+  );
 }
+
+export default SignUp;
+
 
 export default SignUp;
