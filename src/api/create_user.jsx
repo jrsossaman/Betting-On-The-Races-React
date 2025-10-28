@@ -26,7 +26,7 @@ const createUser = async (name, username, password, wallet, email, phone) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           team: 2,
-          body: { users: [newUser] }, 
+          body: { "users": [newUser] },
         }),
       }
     );
