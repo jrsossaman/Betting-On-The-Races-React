@@ -31,7 +31,7 @@ function AppContent() {
         <div className='app_container'>
             <div className="header">
                 <h1 className="title">🏎️ Betting on the Races!</h1>
-                {user ? (
+                {user && (
                     <div className="user-info">
                         <span>Welcome, <strong>{user.name}</strong>!</span>
                         <div className="user-actions">
@@ -50,8 +50,6 @@ function AppContent() {
                             <button onClick={handleLogout} className="btn-logout">Logout</button>
                         </div>
                     </div>
-                ) : (
-                    <p className='Create_new'>Create new profile to get started</p>
                 )}
                 <div className='Sign-up'>
                     {!user ? (
