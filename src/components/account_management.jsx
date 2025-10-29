@@ -11,6 +11,8 @@ function AccountManagement() {
     const [editSuccess, setEditSuccess] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [profilePicture, setProfilePicture] = useState(user?.profilePicture || null);
+    const [tempProfilePicture, setTempProfilePicture] = useState(user?.profilePicture || null);
 
     const handleEditProfile = () => {
         if (!editedName.trim()) {
@@ -26,9 +28,11 @@ function AccountManagement() {
             ...user,
             name: editedName,
             email: editedEmail,
+            profilePicture: tempProfilePicture,
         };
 
         setUser(updatedUser);
+        setProfilePicture(tempProfilePicture);
         setEditMode(false);
         setEditSuccess("✅ Profile updated successfully!");
         setEditError("");
@@ -39,6 +43,7 @@ function AccountManagement() {
     const handleCancel = () => {
         setEditedName(user?.name || "");
         setEditedEmail(user?.email || "");
+        setTempProfilePicture(profilePicture);
         setEditMode(false);
         setEditError("");
     };
@@ -52,6 +57,30 @@ function AccountManagement() {
             }, 1500);
         }
         setShowDeleteConfirm(false);
+    };
+
+    const handleProfilePictureChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                setEditError("File size must be less than 5MB");
+                return;
+            }
+            if (!file.type.startsWith('image/')) {
+                setEditError("Please upload an image file");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setTempProfilePicture(reader.result);
+                setEditError("");
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeTempPicture = () => {
+        setTempProfilePicture(null);
     };
 
     const totalRacesPlayed = registeredUsers.find(u => u.username === user?.username)?.races || 0;
@@ -96,7 +125,11 @@ function AccountManagement() {
                         <div className="profile-card">
                             <div className="profile-header">
                                 <div className="profile-avatar">
-                                    {user?.name?.charAt(0).toUpperCase() || "U"}
+                                    {profilePicture ? (
+                                        <img src={profilePicture} alt="Profile" className="profile-image" />
+                                    ) : (
+                                        user?.name?.charAt(0).toUpperCase() || "U"
+                                    )}
                                 </div>
                                 <div className="profile-title">
                                     <h3>{user?.name || "User"}</h3>
@@ -107,6 +140,43 @@ function AccountManagement() {
                             <div className="profile-details">
                                 {editMode ? (
                                     <div className="edit-form">
+                                        <div className="form-group">
+                                            <label>📸 Profile Picture</label>
+                                            <div className="profile-picture-upload">
+                                                <div className="picture-preview">
+                                                    {tempProfilePicture ? (
+                                                        <img src={tempProfilePicture} alt="Preview" className="preview-img" />
+                                                    ) : (
+                                                        <div className="placeholder-circle">
+                                                            {user?.name?.charAt(0).toUpperCase() || "U"}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="upload-controls">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handleProfilePictureChange}
+                                                        id="pic-input"
+                                                        className="hidden-input"
+                                                    />
+                                                    <label htmlFor="pic-input" className="btn-pic-upload">
+                                                        📤 Upload Photo
+                                                    </label>
+                                                    {tempProfilePicture && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={removeTempPicture}
+                                                            className="btn-pic-remove"
+                                                        >
+                                                            ✕ Remove
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                <p className="pic-hint">Max 5MB • JPG, PNG, GIF</p>
+                                            </div>
+                                        </div>
+
                                         <div className="form-group">
                                             <label>Display Name</label>
                                             <input
