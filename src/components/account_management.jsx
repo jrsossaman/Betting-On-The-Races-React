@@ -7,6 +7,7 @@ function AccountManagement() {
     const [editMode, setEditMode] = useState(false);
     const [editedName, setEditedName] = useState(user?.name || "");
     const [editedEmail, setEditedEmail] = useState(user?.email || "");
+    const [editedPhone, setEditedPhone] = useState(user?.phone || "");
     const [editError, setEditError] = useState("");
     const [editSuccess, setEditSuccess] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -28,6 +29,7 @@ function AccountManagement() {
             ...user,
             name: editedName,
             email: editedEmail,
+            phone: editedPhone,
             profilePicture: tempProfilePicture,
         };
 
@@ -43,6 +45,7 @@ function AccountManagement() {
     const handleCancel = () => {
         setEditedName(user?.name || "");
         setEditedEmail(user?.email || "");
+        setEditedPhone(user?.phone || "");
         setTempProfilePicture(profilePicture);
         setEditMode(false);
         setEditError("");
@@ -194,6 +197,16 @@ function AccountManagement() {
                                                 value={editedEmail}
                                                 onChange={(e) => setEditedEmail(e.target.value)}
                                                 placeholder="Enter your email (optional)"
+                                            />
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label>📱 Phone Number</label>
+                                            <input
+                                                type="tel"
+                                                value={editedPhone}
+                                                onChange={(e) => setEditedPhone(e.target.value)}
+                                                placeholder="Enter your phone number (optional)"
                                             />
                                         </div>
 
