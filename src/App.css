@@ -53,7 +53,7 @@
   margin-top: 20px;
 }
 
-input[type=text], input[type=password] {
+input[type=text], input[type=password], input[type=email] {
   margin: 1%;
   background-color: rgba(128, 128, 128, 0.46);
   color: rgb(255, 255, 255);
@@ -1477,6 +1477,57 @@ select {
     padding: 3px 8px;
     font-size: 12px;
   }
+}
+
+/* Signup Form Styling */
+.signup-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 40px 20px;
+}
+
+.signup-container h2 {
+  margin-bottom: 30px;
+  font-size: 28px;
+  color: white;
+}
+
+.signup-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.signup-container form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.signup-container form label {
+  color: white;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.auth-toggle {
+  margin-top: 20px;
+  text-align: center;
+  color: white;
+}
+
+.toggle-button {
+  background: none;
+  border: none;
+  color: #70a15e;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {
