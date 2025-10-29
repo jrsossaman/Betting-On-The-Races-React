@@ -1,4 +1,6 @@
 const diceRoller = async (driver1, driver2, teamId = 2) => {
+    const driver1Bonus = driver1.driveBonus || 0;
+    const driver2Bonus = driver2.driveBonus || 0;
     
     const driver1Roll = Math.floor(Math.random() * 20 + 1) + driver1.driveBonus;
     const driver2Roll = Math.floor(Math.random() * 20 + 1) + driver2.driveBonus;
