@@ -16,20 +16,70 @@ function SignUp() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Phone validation regex for format (555) 555-5555
+  const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
+
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    
+    // Special handling for phone field - format as user types
+    if (name === "phone") {
+      // Remove all non-digits
+      const digits = value.replace(/\D/g, "");
+      
+      // Format to (XXX) XXX-XXXX
+      let formatted = "";
+      if (digits.length > 0) {
+        if (digits.length <= 3) {
+          formatted = `(${digits}`;
+        } else if (digits.length <= 6) {
+          formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+        } else {
+          formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+        }
+      }
+      
+      setForm({
+        ...form,
+        [name]: formatted,
+      });
+    } else {
+      setForm({
+        ...form,
+        [name]: value,
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!form.username || !form.password || (!isLogin && !form.name)) {
-      setError(isLogin ? "Username and password are required." : "All fields are required.");
-      return;
+    if (isLogin) {
+      // LOGIN validation
+      if (!form.username || !form.password) {
+        setError("Username and password are required.");
+        return;
+      }
+    } else {
+      // SIGNUP validation - all fields required
+      if (!form.name || !form.username || !form.password || !form.email || !form.phone) {
+        setError("All fields are required.");
+        return;
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(form.email)) {
+        setError("Please enter a valid email address.");
+        return;
+      }
+
+      // Validate phone format
+      if (!phoneRegex.test(form.phone)) {
+        setError("Please enter a valid phone number in the format (555) 555-5555.");
+        return;
+      }
     }
 
     try {
@@ -117,17 +167,20 @@ function SignUp() {
                 name="email"
                 value={form.email}
                 onChange={handleChange}
+                required
                 placeholder="Enter email"
               />
             </div>
             <div>
               <label>Phone:</label>
               <input
-                type="text"
+                type="tel"
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
-                placeholder="Enter phone number"
+                required
+                placeholder="(555) 555-5555"
+                maxLength="14"
               />
             </div>
           </>
