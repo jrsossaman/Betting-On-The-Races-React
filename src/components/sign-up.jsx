@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useRaceBetting } from "../context/race_betting_context";
 import createUser from "../api/create_user";
+import checkForDuplicates from "../api/check_for_duplicates";
 import getUser from "../api/get_user";
 
 function SignUp() {
-  const { setUser, setWallet, loginUser, registerUser } = useRaceBetting();
+  const { setUser, setWallet } = useRaceBetting();
   const [isLogin, setIsLogin] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -16,38 +17,19 @@ function SignUp() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Phone validation regex for format (555) 555-5555
   const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
-    // Special handling for phone field - format as user types
     if (name === "phone") {
-      // Remove all non-digits
       const digits = value.replace(/\D/g, "");
-      
-      // Format to (XXX) XXX-XXXX
       let formatted = "";
-      if (digits.length > 0) {
-        if (digits.length <= 3) {
-          formatted = `(${digits}`;
-        } else if (digits.length <= 6) {
-          formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-        } else {
-          formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
-        }
-      }
-      
-      setForm({
-        ...form,
-        [name]: formatted,
-      });
+      if (digits.length <= 3) formatted = `(${digits}`;
+      else if (digits.length <= 6) formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+      else formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+      setForm({ ...form, [name]: formatted });
     } else {
-      setForm({
-        ...form,
-        [name]: value,
-      });
+      setForm({ ...form, [name]: value });
     }
   };
 
@@ -56,75 +38,78 @@ function SignUp() {
     setError("");
 
     if (isLogin) {
-      // LOGIN validation
       if (!form.username || !form.password) {
         setError("Username and password are required.");
         return;
       }
     } else {
-      // SIGNUP validation - all fields required
       if (!form.name || !form.username || !form.password || !form.email || !form.phone) {
         setError("All fields are required.");
         return;
       }
-
-      // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(form.email)) {
         setError("Please enter a valid email address.");
         return;
       }
-
-      // Validate phone format
       if (!phoneRegex.test(form.phone)) {
         setError("Please enter a valid phone number in the format (555) 555-5555.");
         return;
       }
     }
 
-    try {
-      setLoading(true);
+    setLoading(true);
 
+    try {
       if (isLogin) {
-        // LOGIN MODE - Use context loginUser function
-        const result = loginUser(form.username, form.password);
-        if (!result.success) {
-          setError(result.message);
+        const user = await getUser(form.username, form.password);
+        if (!user) {
+          setError("Invalid username or password.");
+          return;
+        }
+        setUser(user);
+        setWallet(user.wallet);
+        alert(`Welcome back, ${user.name}!`);
+        setForm({ name: "", username: "", password: "", email: "", phone: "" });
+      } else {
+        // SIGNUP MODE
+        const duplicate = await checkForDuplicates(form.username);
+        if (duplicate) {
+          setError("Username already exists. Please choose a different username.");
           return;
         }
 
-        // Login successful
-        setUser(result.user);
-        setWallet(result.user.wallet || 1000);
-        alert(`Welcome back, ${result.user.name}!`);
-        setForm({ name: "", username: "", password: "", email: "", phone: "" });
-
-      } else {
-        // SIGNUP MODE - Use context registerUser function
         const newUser = {
           name: form.name,
           username: form.username,
           password: form.password,
-          wallet: 1000, // initial balance
-          email: form.email || "",
-          phone: form.phone || "",
+          wallet: 1000,
+          email: form.email,
+          phone: form.phone,
         };
 
-        const registerResult = registerUser(newUser);
-        if (!registerResult.success) {
-          setError(registerResult.message);
-          return;
-        }
+        try {
+          await createUser(
+            newUser.name,
+            newUser.username,
+            newUser.password,
+            newUser.wallet,
+            newUser.email,
+            newUser.phone
+          );
 
-        // Signup successful - log them in
-        setUser(newUser);
-        setWallet(newUser.wallet);
-        alert(`Welcome ${newUser.name}! You've been given $1000 to start betting!`);
-        setForm({ name: "", username: "", password: "", email: "", phone: "" });
+          setUser(newUser);
+          setWallet(newUser.wallet);
+          alert(`Welcome ${newUser.name}! You've been given $1000 to start betting!`);
+          setForm({ name: "", username: "", password: "", email: "", phone: "" });
+        } catch (signupError) {
+          setError("An error occurred while creating your account. Please try again.");
+          console.error(signupError);
+        }
       }
     } catch (err) {
       console.error(err);
-      setError("An error occurred. Please try again.");
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -139,7 +124,6 @@ function SignUp() {
   return (
     <div className="signup-container">
       <h2>{isLogin ? "Login to Your Account" : "Create Your Profile"}</h2>
-
       {error && <div className="error-message">{error}</div>}
 
       <form onSubmit={handleSubmit}>
@@ -147,63 +131,26 @@ function SignUp() {
           <>
             <div>
               <label>Name:</label>
-              <input
-                type="text"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                required={!isLogin}
-                placeholder="Enter your name"
-              />
+              <input type="text" name="name" value={form.name} onChange={handleChange} placeholder="Enter your name" />
             </div>
             <div>
               <label>Email:</label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                required
-                placeholder="Enter email"
-              />
+              <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="Enter email" />
             </div>
             <div>
               <label>Phone:</label>
-              <input
-                type="tel"
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                required
-                placeholder="(555) 555-5555"
-                maxLength="14"
-              />
+              <input type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="(555) 555-5555" maxLength="14" />
             </div>
           </>
         )}
 
         <div>
           <label>Username:</label>
-          <input
-            type="text"
-            name="username"
-            value={form.username}
-            onChange={handleChange}
-            required
-            placeholder="Enter username"
-          />
+          <input type="text" name="username" value={form.username} onChange={handleChange} placeholder="Enter username" />
         </div>
-
         <div>
           <label>Password:</label>
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            required
-            placeholder="Enter password"
-          />
+          <input type="password" name="password" value={form.password} onChange={handleChange} placeholder="Enter password" />
         </div>
 
         <button type="submit" disabled={loading}>
