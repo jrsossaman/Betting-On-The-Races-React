@@ -5,6 +5,8 @@ const diceRoller = async (driver1, driver2, teamId = 2) => {
     const driver1Roll = Math.floor(Math.random() * 20 + 1) + driver1.driveBonus;
     const driver2Roll = Math.floor(Math.random() * 20 + 1) + driver2.driveBonus;
 
+    console.log(`${driver1.name} rolled ${driver1Roll} vs ${driver2.name} rolled ${driver2Roll}`);
+
     let winner, loser;
 
     if (driver1Roll > driver2Roll) {
