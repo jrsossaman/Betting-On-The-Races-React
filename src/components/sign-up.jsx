@@ -111,7 +111,7 @@ function SignUp() {
               />
             </div>
             <div>
-              <label>Email (optional):</label>
+              <label>Email:</label>
               <input
                 type="email"
                 name="email"
@@ -121,7 +121,7 @@ function SignUp() {
               />
             </div>
             <div>
-              <label>Phone (optional):</label>
+              <label>Phone:</label>
               <input
                 type="text"
                 name="phone"
