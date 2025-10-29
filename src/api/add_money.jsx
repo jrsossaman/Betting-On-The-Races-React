@@ -27,7 +27,7 @@ const addMoney = async (username, amount) => {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: { users: updatedUsers } }),
+        body: JSON.stringify({users: updatedUsers}),
       }
     );
 

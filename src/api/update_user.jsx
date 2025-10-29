@@ -27,7 +27,7 @@ const updateUser = async (username, updates) => {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: { users: updatedUsers } }),
+        body: JSON.stringify({users: updatedUsers}),
       }
     );
 
