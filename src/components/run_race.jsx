@@ -221,8 +221,6 @@ function RunRace() {
                     </select>
                     {selectedDriver1 && (
                         <div className="driver-info">
-                            <p><strong>{selectedDriver1.name}</strong></p>
-                            <p>Car Number: #{selectedDriver1.number}</p>
                             <p>Status: {selectedDriver1.status ? "✅ Active" : "❌ Inactive"}</p>
                         </div>
                     )}
@@ -249,8 +247,6 @@ function RunRace() {
                     </select>
                     {selectedDriver2 && (
                         <div className="driver-info">
-                            <p><strong>{selectedDriver2.name}</strong></p>
-                            <p>Car Number: #{selectedDriver2.number}</p>
                             <p>Status: {selectedDriver2.status ? "✅ Active" : "❌ Inactive"}</p>
                         </div>
                     )}
