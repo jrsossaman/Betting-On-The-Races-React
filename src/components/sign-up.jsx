@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useRaceBetting } from "../context/race_betting_context";
-import createUser from "../api/createUser";
-import getUser from "../api/getUser";
+import createUser from "../api/create_user";
+import getUser from "../api/get_user";
 
 function SignUp() {
   const { setUser, setWallet } = useRaceBetting();

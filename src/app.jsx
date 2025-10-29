@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { RaceBettingProvider, useRaceBetting } from './context/race_betting_context';
-import SignUp from './components/sign-up';
+import SignUp from './components/sign-up.jsx';
 import RunRace from './components/run_race';
 import DriverStats from './components/driver_stats';
 import AccountManagement from './components/account_management';

@@ -5,15 +5,25 @@ const getUser = async (username, password) => {
     );
     if (!response.ok) throw new Error("Failed to fetch records");
 
-    const records = await response.json();
+    const data = await response.json();
+
+    const records = Array.isArray(data.response) ? data.response : [];
+
+    const usernameInput = username.trim().toLowerCase();
+    const passwordInput = password.trim();
 
     for (const record of records) {
-      if (record.body && Array.isArray(record.body.users)) {
-        const user = record.body.users.find(
-          (u) => u.username === username && u.password === password
-        );
-        if (user) return user;
-      }
+      const users = Array.isArray(record.data_json?.users)
+        ? record.data_json.users
+        : [];
+
+      const user = users.find(
+        u =>
+          u.username.trim().toLowerCase() === usernameInput &&
+          u.password.trim() === passwordInput
+      );
+
+      if (user) return user;
     }
 
     return null;
@@ -24,7 +34,3 @@ const getUser = async (username, password) => {
 };
 
 export default getUser;
-
-
-
-

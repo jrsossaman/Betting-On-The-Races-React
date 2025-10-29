@@ -11,64 +11,85 @@
 // }
 // export default login
 import React, { useState } from "react";
+import getUser from "../api/get_user";
 
 function Login() {
-    const [form, setForm] = useState({
-        username: '',
-        password: '',
+  const [form, setForm] = useState({
+    username: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
     });
+  };
 
-    const handleChange = (e) => {
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value,
-        });
-    };
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    const { username, password } = form;
 
-    const handleLogin = (e) => {
-        e.preventDefault();
-        const { username, password } = form;
+    if (!username || !password) {
+      setError("Username and password are required.");
+      return;
+    }
 
-        const users = JSON.parse(localStorage.getItem('users')) || [];
+    try {
+      setLoading(true);
+      const user = await getUser(username, password);
 
-        const user = users.find(
-            (u) => u.username === username && u.password === password
-        );
+      if (user) {
+        alert(`Welcome back, ${user.name}!`);
+        setForm({ username: "", password: "" });
+      } else {
+        setError("Invalid username or password.");
+      }
+    } catch (err) {
+      console.error("Login failed:", err);
+      setError("An error occurred while logging in. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        if (user) {
-            alert(`Welcome back, ${user.name}!`);
-            
-        } else {
-            alert("Invalid username or password.");
-        }
-    };
+  return (
+    <form onSubmit={handleLogin}>
+      <h2>Login</h2>
 
-    return (
-        <form onSubmit={handleLogin}>
-            <h2>Login</h2>
-            <div>
-                <label>Username:</label>
-                <input
-                    type="text"
-                    name="username"
-                    value={form.username}
-                    onChange={handleChange}
-                    required
-                />
-            </div>
-            <div>
-                <label>Password:</label>
-                <input
-                    type="password"
-                    name="password"
-                    value={form.password}
-                    onChange={handleChange}
-                    required
-                />
-            </div>
-            <button type="submit">Login</button>
-        </form>
-    );
+      {error && <div style={{ color: "red", marginBottom: "10px" }}>{error}</div>}
+
+      <div>
+        <label>Username:</label>
+        <input
+          type="text"
+          name="username"
+          value={form.username}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div>
+        <label>Password:</label>
+        <input
+          type="password"
+          name="password"
+          value={form.password}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <button type="submit" disabled={loading}>
+        {loading ? "Logging in..." : "Login"}
+      </button>
+    </form>
+  );
 }
 
 export default Login;

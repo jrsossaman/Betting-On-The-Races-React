@@ -3,19 +3,17 @@ const createUser = async (name, username, password, wallet, email, phone) => {
     const getResponse = await fetch(
       "https://unit-4-project-app-24d5eea30b23.herokuapp.com/get/all?teamId=2"
     );
-
-    if (!getResponse.ok) throw new Error("Failed to fetch existing users");
+    if (!getResponse.ok) throw new Error("Failed to fetch existing data");
     const data = await getResponse.json();
 
-    const allUsers = data.body.flatMap(record => record.users || []);
+    const allUsers = data.body
+      ? data.body.flatMap(record => record.data_json?.users || [])
+      : [];
 
-    const duplicateUser = allUsers.find(
-      user => user.username === username || user.password === password
+    const existingUser = allUsers.find(
+      u => u.username === username || u.password === password
     );
-
-    if (duplicateUser) {
-      throw new Error("Account already exists");
-    }
+    if (existingUser) throw new Error("User already exists");
 
     const newUser = { name, username, password, wallet, email, phone };
 
@@ -26,16 +24,15 @@ const createUser = async (name, username, password, wallet, email, phone) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           team: 2,
-          body: { "users": [newUser] },
+          body: {
+            users: [newUser], 
+          },
         }),
       }
     );
 
     if (!response.ok) throw new Error("Failed to create user");
-
-    const result = await response.json();
-    return result;
-
+    return await response.json();
   } catch (error) {
     console.error("createUser error:", error);
     throw error;
@@ -43,4 +40,3 @@ const createUser = async (name, username, password, wallet, email, phone) => {
 };
 
 export default createUser;
-
