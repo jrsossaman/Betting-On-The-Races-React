@@ -4,7 +4,7 @@ import createUser from "../api/create_user";
 import getUser from "../api/get_user";
 
 function SignUp() {
-  const { setUser, setWallet } = useRaceBetting();
+  const { setUser, setWallet, loginUser, registerUser } = useRaceBetting();
   const [isLogin, setIsLogin] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -86,21 +86,21 @@ function SignUp() {
       setLoading(true);
 
       if (isLogin) {
-        // LOGIN MODE
-        const user = await getUser(form.username, form.password);
-        if (!user) {
-          setError("Invalid username or password.");
+        // LOGIN MODE - Use context loginUser function
+        const result = loginUser(form.username, form.password);
+        if (!result.success) {
+          setError(result.message);
           return;
         }
 
         // Login successful
-        setUser(user);
-        setWallet(user.wallet);
-        alert(`Welcome back, ${user.name}!`);
+        setUser(result.user);
+        setWallet(result.user.wallet || 1000);
+        alert(`Welcome back, ${result.user.name}!`);
         setForm({ name: "", username: "", password: "", email: "", phone: "" });
 
       } else {
-        // SIGNUP MODE
+        // SIGNUP MODE - Use context registerUser function
         const newUser = {
           name: form.name,
           username: form.username,
@@ -110,15 +110,11 @@ function SignUp() {
           phone: form.phone || "",
         };
 
-        // Call API to create user
-        await createUser(
-          newUser.name,
-          newUser.username,
-          newUser.password,
-          newUser.wallet,
-          newUser.email,
-          newUser.phone
-        );
+        const registerResult = registerUser(newUser);
+        if (!registerResult.success) {
+          setError(registerResult.message);
+          return;
+        }
 
         // Signup successful - log them in
         setUser(newUser);

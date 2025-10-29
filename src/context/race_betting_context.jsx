@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useState, useEffect} from "react";
+import React, {createContext, useContext, useState, useEffect, useRef} from "react";
 
 export const raceBettingContext = createContext();
 
@@ -9,6 +9,7 @@ export function RaceBettingProvider({ children }) {
     const [driverStats, setDriverStats] = useState({}); // Track wins, races, points for each driver
     const [raceHistory, setRaceHistory] = useState([]);
     const [registeredUsers, setRegisteredUsers] = useState([]); // Store all registered users
+    const isInitialized = useRef(false); // Track if localStorage data has been loaded
 
     // Initialize driver stats when drivers are loaded
     useEffect(() => {
@@ -28,6 +29,57 @@ export function RaceBettingProvider({ children }) {
             });
         }
     }, [drivers]);
+
+    // Save user data to localStorage whenever it changes
+    useEffect(() => {
+        if (user) {
+            localStorage.setItem('currentUser', JSON.stringify(user));
+        }
+    }, [user]);
+
+    // Save wallet to localStorage whenever it changes
+    useEffect(() => {
+        localStorage.setItem('userWallet', wallet.toString());
+    }, [wallet]);
+
+    // Save registered users to localStorage whenever they change
+    useEffect(() => {
+        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+    }, [registeredUsers]);
+
+    // Load data from localStorage on app start (runs only once)
+    useEffect(() => {
+        if (isInitialized.current) return; // Only run once
+        isInitialized.current = true;
+
+        try {
+            // Load registered users first
+            const savedUsers = localStorage.getItem('registeredUsers');
+            if (savedUsers) {
+                const users = JSON.parse(savedUsers);
+                setRegisteredUsers(users);
+                
+                // Then check if there's a currentUser to restore
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser) {
+                    const user = JSON.parse(savedUser);
+                    // Verify this user still exists in registeredUsers
+                    const userExists = users.some(u => u.username === user.username);
+                    if (userExists) {
+                        setUser(user);
+                    }
+                }
+            }
+
+            // Load wallet
+            const savedWallet = localStorage.getItem('userWallet');
+            if (savedWallet) {
+                setWallet(parseFloat(savedWallet));
+            }
+        } catch (error) {
+            console.error('Error loading data from localStorage:', error);
+        }
+    }, []);
 
     // Recalculate driver stats whenever race history changes
     useEffect(() => {
@@ -83,6 +135,12 @@ export function RaceBettingProvider({ children }) {
 
     const updateUserData = (userData) => {
         setUser(userData);
+        // Update the user in registeredUsers list
+        setRegisteredUsers(prevUsers =>
+            prevUsers.map(u =>
+                u.username === userData.username ? userData : u
+            )
+        );
     };
 
     const addRaceResult = (result) => {
@@ -102,9 +160,9 @@ export function RaceBettingProvider({ children }) {
         });
     };
 
-    // Sync wallet changes to registered users
+    // Sync wallet changes to registered users BEFORE logout
     useEffect(() => {
-        if (user) {
+        if (user && wallet >= 0) {
             setRegisteredUsers(prevUsers =>
                 prevUsers.map(u =>
                     u.username === user.username
@@ -113,7 +171,7 @@ export function RaceBettingProvider({ children }) {
                 )
             );
         }
-    }, [wallet, user]);
+    }, [wallet]);
 
     // Update user stats when race history changes
     useEffect(() => {
@@ -164,6 +222,8 @@ export function RaceBettingProvider({ children }) {
         if (foundUser.password !== password) {
             return { success: false, message: 'Incorrect password.' };
         }
+        // Set the user (this will trigger localStorage save)
+        setUser(foundUser);
         return { success: true, user: foundUser };
     };
 
@@ -176,6 +236,22 @@ export function RaceBettingProvider({ children }) {
             setUser(null);
             setWallet(0);
         }
+    };
+
+    const logoutUser = () => {
+        // Ensure wallet is synced before logout
+        if (user) {
+            setRegisteredUsers(prevUsers =>
+                prevUsers.map(u =>
+                    u.username === user.username
+                        ? { ...u, wallet: wallet }
+                        : u
+                )
+            );
+        }
+        // Clear current session but keep registeredUsers and wallet in localStorage
+        setUser(null);
+        setWallet(0);
     };
 
     const value = {
@@ -193,6 +269,7 @@ export function RaceBettingProvider({ children }) {
         registeredUsers,
         registerUser,
         loginUser,
+        logoutUser,
         deleteUser,
     };
 

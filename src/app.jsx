@@ -10,7 +10,7 @@ import './App.css';
 
 
 function AppContent() {
-    const { setDrivers, user, setUser } = useRaceBetting();
+    const { setDrivers, user, logoutUser } = useRaceBetting();
     const [activeView, setActiveView] = useState("racing");
 
     useEffect(() => {
@@ -22,8 +22,7 @@ function AppContent() {
 
     const handleLogout = () => {
         if (window.confirm('Are you sure you want to logout?')) {
-            setUser(null);
-            // Don't reset wallet here - it will be restored on next login
+            logoutUser();
         }
     };
 
