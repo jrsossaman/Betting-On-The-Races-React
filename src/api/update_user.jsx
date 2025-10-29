@@ -5,19 +5,20 @@ const updateUser = async (username, updates) => {
     );
     if (!getResponse.ok) throw new Error("Failed to fetch records");
 
-    const records = await getResponse.json();
+    const data = await getResponse.json();
+    const records = Array.isArray(data.response) ? data.response : [];
+
     const record = records.find(
       (r) =>
-        r.body &&
-        Array.isArray(r.body.users) &&
-        r.body.users.some((u) => u.username === username)
+        Array.isArray(r.data_json?.users) &&
+        r.data_json.users.some((u) => u.username === username)
     );
 
     if (!record) throw new Error("User not found");
 
-    const updatedUsers = record.body.users.map((user) =>
+    const updatedUsers = record.data_json.users.map((user) =>
       user.username === username
-        ? { ...user, ...updates, wallet: user.wallet } // preserve wallet
+        ? { ...user, ...updates, wallet: user.wallet } // wallet unchanged
         : user
     );
 
@@ -26,7 +27,7 @@ const updateUser = async (username, updates) => {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: { ...record.body, users: updatedUsers } }),
+        body: JSON.stringify({ body: { users: updatedUsers } }),
       }
     );
 
