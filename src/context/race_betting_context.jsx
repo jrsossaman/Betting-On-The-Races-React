@@ -41,6 +41,9 @@ export function RaceBettingProvider({ children }) {
     }, [user]);
 
     // Save wallet to localStorage whenever it changes
+    // Save wallet to localStorage whenever it changes
+    // Note: Not including 'user' in dependencies as it would cause unnecessary updates
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         localStorage.setItem('userWallet', wallet.toString());
         
@@ -54,6 +57,7 @@ export function RaceBettingProvider({ children }) {
     }, [wallet]);
 
     // Save registered users to localStorage whenever they change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
     }, [registeredUsers]);
@@ -203,6 +207,8 @@ export function RaceBettingProvider({ children }) {
     };
 
     // Sync wallet changes to registered users BEFORE logout
+    // Note: Not including 'user' in dependencies as it would cause unnecessary updates
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (user && wallet >= 0) {
             setRegisteredUsers(prevUsers =>
@@ -216,6 +222,7 @@ export function RaceBettingProvider({ children }) {
     }, [wallet]);
 
     // Update user stats when race history changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (user && raceHistory.length > 0) {
             // Filter races for current user only

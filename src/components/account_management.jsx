@@ -40,7 +40,7 @@ function AccountManagement() {
             
             refreshUser();
         }
-    }, [activeTab]);
+    }, [activeTab, user?.username, setUser]);
 
     const handleEditProfile = () => {
         if (!editedName.trim()) {

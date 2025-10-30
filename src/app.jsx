@@ -32,7 +32,7 @@ function AppContent() {
             // Reset to racing when user logs out
             setActiveView("racing");
         }
-    }, [user]);
+    }, [user, activeView, setActiveView]);
 
     const handleLogout = () => {
         if (window.confirm('Are you sure you want to logout?')) {
