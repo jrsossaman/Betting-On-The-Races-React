@@ -98,8 +98,13 @@ function SignUp() {
             newUser.phone
           );
 
-          setUser(newUser);
-          setWallet(newUser.wallet);
+          // Fetch the created user from backend to get all fields (id, isAdmin, etc.)
+          const createdUser = await getUser(newUser.username, newUser.password);
+          if (createdUser) {
+            setUser(createdUser);
+            setWallet(createdUser.wallet);
+          }
+          
           alert(`Welcome ${newUser.name}! You've been given $1000 to start betting!`);
           setForm({ name: "", username: "", password: "", email: "", phone: "" });
         } catch (signupError) {

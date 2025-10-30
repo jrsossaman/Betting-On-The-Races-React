@@ -169,10 +169,12 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
-// READ - Get all users
+// READ - Get all users (includes deleted/suspended for admin viewing)
 app.get('/api/users', async (req, res) => {
   try {
     const teamId = parseInt(req.query.teamId) || 2;
+    // Optionally filter to exclude deleted users for non-admin requests
+    // For now, include all users with status info
     const users = await User.find({ teamId });
 
     res.json({
@@ -214,12 +216,48 @@ app.get('/api/users/username/:username', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    // Check if user is suspended or deleted
+    if (user.accountStatus === 'suspended') {
+      return res.status(403).json({ 
+        error: 'Account is suspended. Please contact support.',
+        accountStatus: 'suspended'
+      });
+    }
+
+    if (user.accountStatus === 'deleted') {
+      return res.status(404).json({ error: 'Account no longer exists' });
+    }
+
     res.json({
       success: true,
       data: user,
     });
   } catch (error) {
     console.error('Error fetching user:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// UPDATE - Update a user by username
+app.put('/api/users/username/:username', async (req, res) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { username: req.params.username },
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'User updated successfully',
+      data: user,
+    });
+  } catch (error) {
+    console.error('Error updating user:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -268,6 +306,295 @@ app.delete('/api/users/:id', async (req, res) => {
   }
 });
 
+// DELETE - Delete a user by username
+app.delete('/api/users/username/:username', async (req, res) => {
+  try {
+    const user = await User.findOneAndDelete({ username: req.params.username });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'User deleted successfully',
+      data: user,
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ==================== ADMIN MANAGEMENT ENDPOINTS ====================
+
+// Helper function to verify admin authorization
+const verifyAdmin = async (adminId) => {
+  try {
+    const admin = await User.findById(adminId);
+    return admin && admin.isAdmin && admin.accountStatus === 'active';
+  } catch (error) {
+    return false;
+  }
+};
+
+// SUSPEND - Suspend a user account
+app.post('/api/admin/suspend/:userId', async (req, res) => {
+  try {
+    const { adminId } = req.body;
+
+    if (!adminId) {
+      return res.status(400).json({ error: 'adminId required in body' });
+    }
+
+    // Verify admin authorization
+    const isAdmin = await verifyAdmin(adminId);
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Unauthorized: Admin privileges required' });
+    }
+
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.isAdmin) {
+      return res.status(400).json({ error: 'Cannot suspend other admin accounts' });
+    }
+
+    user.accountStatus = 'suspended';
+    await user.save();
+
+    res.json({
+      success: true,
+      message: `User ${user.username} has been suspended`,
+      data: user,
+    });
+  } catch (error) {
+    console.error('Error suspending user:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ADD MONEY - Add funds to a user's wallet
+app.post('/api/add-money/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { amount } = req.body;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Amount must be greater than 0' });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    user.wallet += amount;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Money added successfully',
+      data: user,
+    });
+  } catch (error) {
+    console.error('Error adding money:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// LOSE MONEY - Subtract funds from a user's wallet
+app.post('/api/lose-money/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { amount } = req.body;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Amount must be greater than 0' });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.wallet < amount) {
+      return res.status(400).json({ error: 'Insufficient funds' });
+    }
+
+    user.wallet -= amount;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Money deducted successfully',
+      data: user,
+    });
+  } catch (error) {
+    console.error('Error deducting money:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// RECORD RACE - Save race result to user's history
+app.post('/api/race/record/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { driver1, driver2, winner, betAmount, userWon } = req.body;
+
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required' });
+    }
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Update race statistics
+    user.raceCount = (user.raceCount || 0) + 1;
+    if (userWon) {
+      user.totalWinnings = (user.totalWinnings || 0) + betAmount;
+    }
+
+    // Add to race history
+    user.raceHistory.push({
+      driver1,
+      driver2,
+      winner,
+      betAmount,
+      userWon,
+      timestamp: new Date(),
+    });
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Race recorded successfully',
+      data: user,
+    });
+  } catch (error) {
+    console.error('Error recording race:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ==================== ADMIN ENDPOINTS ====================
+
+// SUSPEND - Suspend a user account
+app.post('/api/admin/suspend/:userId', async (req, res) => {
+  try {
+    const { adminId } = req.body;
+
+    if (!adminId) {
+      return res.status(400).json({ error: 'adminId required in body' });
+    }
+
+    // Verify admin authorization
+    const isAdmin = await verifyAdmin(adminId);
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Unauthorized: Admin privileges required' });
+    }
+
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    user.accountStatus = 'active';
+    await user.save();
+
+    res.json({
+      success: true,
+      message: `User ${user.username} has been unsuspended`,
+      data: user,
+    });
+  } catch (error) {
+    console.error('Error unsuspending user:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE - Permanently delete a user account (soft delete)
+app.post('/api/admin/delete/:userId', async (req, res) => {
+  try {
+    const { adminId } = req.body;
+
+    if (!adminId) {
+      return res.status(400).json({ error: 'adminId required in body' });
+    }
+
+    // Verify admin authorization
+    const isAdmin = await verifyAdmin(adminId);
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Unauthorized: Admin privileges required' });
+    }
+
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.isAdmin) {
+      return res.status(400).json({ error: 'Cannot delete admin accounts' });
+    }
+
+    // Soft delete by marking as deleted
+    user.accountStatus = 'deleted';
+    await user.save();
+
+    res.json({
+      success: true,
+      message: `User ${user.username} has been permanently deleted`,
+      data: user,
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET - Get all active users (for admin panel)
+app.get('/api/admin/users/active', async (req, res) => {
+  try {
+    const { adminId } = req.query;
+
+    if (!adminId) {
+      return res.status(400).json({ error: 'adminId query parameter required' });
+    }
+
+    // Verify admin authorization
+    const isAdmin = await verifyAdmin(adminId);
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'Unauthorized: Admin privileges required' });
+    }
+
+    const teamId = parseInt(req.query.teamId) || 2;
+    const users = await User.find({ teamId });
+
+    // Separate users by status for admin overview
+    const activeUsers = users.filter(u => u.accountStatus === 'active');
+    const suspendedUsers = users.filter(u => u.accountStatus === 'suspended');
+    const deletedUsers = users.filter(u => u.accountStatus === 'deleted');
+
+    res.json({
+      success: true,
+      data: {
+        active: activeUsers,
+        suspended: suspendedUsers,
+        deleted: deletedUsers,
+        totalCount: users.length,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching user statistics:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ==================== LEGACY ENDPOINTS (for backwards compatibility) ====================
 
 // GET /get/all - Fetch all drivers and users for a team
@@ -276,7 +603,8 @@ app.get('/get/all', async (req, res) => {
     const teamId = parseInt(req.query.teamId) || 2;
     
     const drivers = await Driver.find({ teamId });
-    const users = await User.find({ teamId });
+    // Filter to only include active users
+    const users = await User.find({ teamId, accountStatus: 'active' });
 
     res.json({
       response: [],
@@ -372,7 +700,7 @@ app.patch('/update/data', async (req, res) => {
   }
 });
 
-// DELETE /delete/user - Delete a user (legacy)
+// DELETE /delete/user - Delete a user (legacy - now performs soft delete)
 app.delete('/delete/user', async (req, res) => {
   try {
     const teamId = parseInt(req.query.teamId) || 2;
@@ -382,16 +710,20 @@ app.delete('/delete/user', async (req, res) => {
       return res.status(400).json({ error: 'username required' });
     }
 
-    const deletedUser = await User.findOneAndDelete({ teamId, username });
+    const user = await User.findOne({ teamId, username });
 
-    if (!deletedUser) {
+    if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+
+    // Perform soft delete by marking as deleted
+    user.accountStatus = 'deleted';
+    await user.save();
 
     res.json({
       response: [],
       body: {
-        users: [deletedUser],
+        users: [user],
       },
     });
   } catch (error) {
@@ -402,6 +734,6 @@ app.delete('/delete/user', async (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });

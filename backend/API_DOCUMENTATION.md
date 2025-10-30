@@ -318,7 +318,208 @@ Delete a user permanently.
 
 ---
 
-## 📝 Legacy Endpoints (Backwards Compatibility)
+## � ADMIN MANAGEMENT ENDPOINTS
+
+### Authorization
+All admin endpoints require `adminId` in the request body to verify admin privileges. The user identified by `adminId` must have:
+- `isAdmin: true`
+- `accountStatus: 'active'`
+
+### Account Status Values
+- `'active'` - User can login and access the platform
+- `'suspended'` - User cannot login, account is temporarily disabled
+- `'deleted'` - Account is permanently deleted (soft delete)
+
+---
+
+### SUSPEND User Account
+**POST** `/api/admin/suspend/:userId`
+
+Suspend a user's account. Suspended users will receive a 403 error on login.
+
+**Request Body:**
+```json
+{
+  "adminId": "65f1234567890abcdef12347"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "User john_doe has been suspended",
+  "data": {
+    "_id": "65f1234567890abcdef12346",
+    "username": "john_doe",
+    "name": "John Doe",
+    "accountStatus": "suspended",
+    "isAdmin": false,
+    "wallet": 1000
+  }
+}
+```
+
+**Error Responses:**
+- `400` - "Cannot suspend other admin accounts"
+- `403` - "Unauthorized: Admin privileges required"
+- `404` - "User not found"
+
+---
+
+### UNSUSPEND User Account
+**POST** `/api/admin/unsuspend/:userId`
+
+Restore a suspended user's account access.
+
+**Request Body:**
+```json
+{
+  "adminId": "65f1234567890abcdef12347"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "User john_doe has been unsuspended",
+  "data": {
+    "_id": "65f1234567890abcdef12346",
+    "username": "john_doe",
+    "name": "John Doe",
+    "accountStatus": "active",
+    "isAdmin": false,
+    "wallet": 1000
+  }
+}
+```
+
+**Error Responses:**
+- `403` - "Unauthorized: Admin privileges required"
+- `404` - "User not found"
+
+---
+
+### DELETE User Account (Permanent)
+**POST** `/api/admin/delete/:userId`
+
+Permanently delete a user account (soft delete - data is marked as deleted).
+
+**Request Body:**
+```json
+{
+  "adminId": "65f1234567890abcdef12347"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "User john_doe has been permanently deleted",
+  "data": {
+    "_id": "65f1234567890abcdef12346",
+    "username": "john_doe",
+    "name": "John Doe",
+    "accountStatus": "deleted",
+    "isAdmin": false,
+    "wallet": 1000
+  }
+}
+```
+
+**Error Responses:**
+- `400` - "Cannot delete admin accounts"
+- `403` - "Unauthorized: Admin privileges required"
+- `404` - "User not found"
+
+---
+
+### GET All Users with Status Overview
+**GET** `/api/admin/users/active?adminId=<adminId>&teamId=2`
+
+Retrieve all users categorized by their account status.
+
+**Query Parameters:**
+- `adminId` (required) - The admin user's MongoDB ID
+- `teamId` (optional) - Team ID, defaults to 2
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": {
+    "active": [
+      {
+        "_id": "65f1234567890abcdef12346",
+        "username": "john_doe",
+        "name": "John Doe",
+        "accountStatus": "active",
+        "wallet": 1000
+      }
+    ],
+    "suspended": [
+      {
+        "_id": "65f1234567890abcdef12348",
+        "username": "jane_smith",
+        "name": "Jane Smith",
+        "accountStatus": "suspended",
+        "wallet": 500
+      }
+    ],
+    "deleted": [
+      {
+        "_id": "65f1234567890abcdef12349",
+        "username": "old_user",
+        "name": "Old User",
+        "accountStatus": "deleted",
+        "wallet": 0
+      }
+    ],
+    "totalCount": 3
+  }
+}
+```
+
+**Error Responses:**
+- `400` - "adminId query parameter required"
+- `403` - "Unauthorized: Admin privileges required"
+
+---
+
+## 🔑 Creating an Admin Account
+
+### Initial Setup
+Run the seed script to create the first admin account:
+
+```bash
+cd backend
+node seed-admin.js
+```
+
+**Default Admin Credentials:**
+- Username: `admin`
+- Password: `AdminPassword123!`
+
+⚠️ **Important**: Change the admin password immediately after first login.
+
+### Admin User Schema
+```json
+{
+  "teamId": 2,
+  "username": "admin",
+  "password": "AdminPassword123!",
+  "name": "Administrator",
+  "wallet": 50000,
+  "isAdmin": true,
+  "accountStatus": "active"
+}
+```
+
+---
+
+## �📝 Legacy Endpoints (Backwards Compatibility)
 
 These endpoints are maintained for backwards compatibility with existing frontend code:
 
@@ -382,6 +583,42 @@ curl -X POST http://localhost:5000/api/users?teamId=2 \
 ### Get All Users
 ```bash
 curl http://localhost:5000/api/users?teamId=2
+```
+
+---
+
+## 👑 Testing Admin Endpoints with cURL
+
+### Suspend a User
+```bash
+curl -X POST http://localhost:5000/api/admin/suspend/<user_id> \
+  -H "Content-Type: application/json" \
+  -d '{
+    "adminId": "<admin_id>"
+  }'
+```
+
+### Unsuspend a User
+```bash
+curl -X POST http://localhost:5000/api/admin/unsuspend/<user_id> \
+  -H "Content-Type: application/json" \
+  -d '{
+    "adminId": "<admin_id>"
+  }'
+```
+
+### Delete a User
+```bash
+curl -X POST http://localhost:5000/api/admin/delete/<user_id> \
+  -H "Content-Type: application/json" \
+  -d '{
+    "adminId": "<admin_id>"
+  }'
+```
+
+### Get All Users with Status Overview
+```bash
+curl "http://localhost:5000/api/admin/users/active?adminId=<admin_id>&teamId=2"
 ```
 
 ---

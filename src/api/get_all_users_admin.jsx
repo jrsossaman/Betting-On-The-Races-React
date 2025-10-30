@@ -1,20 +1,17 @@
 const getAllUsersAdmin = async (teamId = 2) => {
   try {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001";
     const response = await fetch(
-      `https://unit-4-project-app-24d5eea30b23.herokuapp.com/get/all?teamId=${teamId}`
+      `${apiUrl}/api/users?teamId=${teamId}`
     );
 
-    if (!response.ok) throw new Error("Failed to fetch team data");
+    if (!response.ok) throw new Error("Failed to fetch users");
 
     const data = await response.json();
+    const allUsers = data.data || [];
 
-    const allUsers = data.body.flatMap(record => record.users || []);
-
-    const nonAdminUsers = allUsers.filter(
-      user =>
-        user.username.toLowerCase() !== "admin123" &&
-        user.name.toLowerCase() !== "admin"
-    );
+    // Filter out admin users
+    const nonAdminUsers = allUsers.filter(user => !user.isAdmin);
 
     return nonAdminUsers;
   } catch (error) {

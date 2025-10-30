@@ -3,7 +3,7 @@ import diceRoller from "./dice_roller";
 import { useRaceBetting } from "../context/race_betting_context";
 
 function RunRace() {
-    const { user, wallet, updateWallet, addRaceResult, drivers } = useRaceBetting();
+    const { user, wallet, updateWallet, addRaceResult, drivers, setUser } = useRaceBetting();
     const [selectedDriver1, setSelectedDriver1] = useState(null);
     const [selectedDriver2, setSelectedDriver2] = useState(null);
     const [betDriver, setBetDriver] = useState(null); // New: track who they're betting on
@@ -123,7 +123,7 @@ function RunRace() {
                     timestamp: new Date().toLocaleString(),
                 });
 
-                // Add to race history
+                // Add to race history locally
                 addRaceResult({
                     driver1: selectedDriver1,
                     driver2: selectedDriver2,
@@ -135,6 +135,33 @@ function RunRace() {
                     username: user?.username,
                     timestamp: new Date().toLocaleString(),
                 });
+
+                // Save race to backend database
+                try {
+                    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001";
+                    const response = await fetch(`${apiUrl}/api/race/record/${user?.username}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            driver1: selectedDriver1.name,
+                            driver2: selectedDriver2.name,
+                            winner: winner.name,
+                            betAmount,
+                            userWon,
+                        }),
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        // Update the user in context with the fresh data from backend
+                        if (result.data) {
+                            setUser(result.data);
+                        }
+                    }
+                } catch (saveErr) {
+                    console.error('Failed to save race to database:', saveErr);
+                    // Don't fail the race if database save fails
+                }
             }
         } catch (err) {
             setError(`Race failed: ${err.message}`);

@@ -1,29 +1,36 @@
 const getUser = async (username, password) => {
   try {
+    // First, try the local backend API (MongoDB)
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001";
     const response = await fetch(
-      "https://unit-4-project-app-24d5eea30b23.herokuapp.com/get/all?teamId=2"
+      `${apiUrl}/api/users/username/${username}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
     );
-    if (!response.ok) throw new Error("Failed to fetch records");
 
-    const data = await response.json();
+    if (response.ok) {
+      const data = await response.json();
+      const user = data.data;
 
-    const records = Array.isArray(data.response) ? data.response : [];
-
-    const usernameInput = username.trim().toLowerCase();
-    const passwordInput = password.trim();
-
-    for (const record of records) {
-      const users = Array.isArray(record.data_json?.users)
-        ? record.data_json.users
-        : [];
-
-      const user = users.find(
-        u =>
-          u.username.trim().toLowerCase() === usernameInput &&
-          u.password.trim() === passwordInput
-      );
-
-      if (user) return user;
+      // Verify password matches
+      if (user && user.password === password) {
+        return user;
+      } else {
+        console.error("Password mismatch or user not found");
+        return null;
+      }
+    } else if (response.status === 403) {
+      // User is suspended
+      console.error("Account is suspended. Please contact support.");
+      return null;
+    } else if (response.status === 404) {
+      // User not found
+      console.error("User not found");
+      return null;
     }
 
     return null;

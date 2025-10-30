@@ -24,6 +24,35 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 1000,
     },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
+    accountStatus: {
+      type: String,
+      enum: ['active', 'suspended', 'deleted'],
+      default: 'active',
+      required: true,
+    },
+    raceCount: {
+      type: Number,
+      default: 0,
+    },
+    totalWinnings: {
+      type: Number,
+      default: 0,
+    },
+    raceHistory: [
+      {
+        driver1: String,
+        driver2: String,
+        winner: String,
+        betAmount: Number,
+        userWon: Boolean,
+        timestamp: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true }
 );
