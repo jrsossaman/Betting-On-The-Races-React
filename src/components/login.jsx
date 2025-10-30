@@ -12,8 +12,10 @@
 // export default login
 import React, { useState } from "react";
 import getUser from "../api/get_user";
+import { useRaceBetting } from "../context/race_betting_context";
 
 function Login() {
+  const { setUser } = useRaceBetting();
   const [form, setForm] = useState({
     username: "",
     password: "",
@@ -44,6 +46,8 @@ function Login() {
       const user = await getUser(username, password);
 
       if (user) {
+        // Set user in context to log them in
+        setUser(user);
         alert(`Welcome back, ${user.name}!`);
         setForm({ username: "", password: "" });
       } else {

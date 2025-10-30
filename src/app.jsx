@@ -4,6 +4,7 @@ import SignUp from './components/sign-up.jsx';
 import RunRace from './components/run_race';
 import DriverStats from './components/driver_stats';
 import AccountManagement from './components/account_management';
+import AdminPanel from './components/admin_panel';
 import driversData from './drivers.json';
 import './App.css';
 
@@ -20,6 +21,19 @@ function AppContent() {
         }
     }, [setDrivers]);
 
+    // Reset view when user changes, and prevent non-admins from viewing admin panel
+    useEffect(() => {
+        if (user) {
+            // If user is not admin and trying to view admin panel, reset to racing
+            if (!user.isAdmin && activeView === "admin") {
+                setActiveView("racing");
+            }
+        } else {
+            // Reset to racing when user logs out
+            setActiveView("racing");
+        }
+    }, [user]);
+
     const handleLogout = () => {
         if (window.confirm('Are you sure you want to logout?')) {
             logoutUser();
@@ -34,6 +48,15 @@ function AppContent() {
                     <div className="user-info">
                         <span>Welcome, <strong>{user.name}</strong>!</span>
                         <div className="user-actions">
+                            {user.isAdmin && (
+                                <button
+                                    onClick={() => setActiveView("admin")}
+                                    className={`btn-nav btn-admin ${activeView === "admin" ? "active" : ""}`}
+                                    title="Admin Control Panel"
+                                >
+                                    👑 Admin
+                                </button>
+                            )}
                             <button
                                 onClick={() => setActiveView("account")}
                                 className={`btn-nav ${activeView === "account" ? "active" : ""}`}
@@ -53,6 +76,8 @@ function AppContent() {
                 <div className='Sign-up'>
                     {!user ? (
                         <SignUp />
+                    ) : activeView === "admin" ? (
+                        <AdminPanel />
                     ) : activeView === "account" ? (
                         <AccountManagement />
                     ) : (

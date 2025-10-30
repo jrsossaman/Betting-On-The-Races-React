@@ -1,7 +1,8 @@
 const checkForDuplicates = async (username) => {
   try {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001";
     const response = await fetch(
-      "https://unit-4-project-app-24d5eea30b23.herokuapp.com/get/all?teamId=2"
+      `${apiUrl}/api/users`
     );
 
     if (!response.ok) {
@@ -9,14 +10,7 @@ const checkForDuplicates = async (username) => {
     }
 
     const data = await response.json();
-
-    const allUsers = data.response.flatMap(entry => {
-      const json = entry.data_json;
-      if (!json) return [];
-      if (Array.isArray(json.users)) return json.users;
-      if (json.body && Array.isArray(json.body.users)) return json.body.users;
-      return [];
-    });
+    const allUsers = data.data || [];
 
     return allUsers.some(u => u.username.toLowerCase() === username.toLowerCase());
     

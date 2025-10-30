@@ -2,6 +2,9 @@ import React, {createContext, useContext, useState, useEffect, useRef} from "rea
 
 export const raceBettingContext = createContext();
 
+// API URL configuration - uses environment variable or defaults to localhost
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+
 export function RaceBettingProvider({ children }) {
     const [user, setUser] = useState(null);
     const [wallet, setWallet] = useState(0);
@@ -40,6 +43,14 @@ export function RaceBettingProvider({ children }) {
     // Save wallet to localStorage whenever it changes
     useEffect(() => {
         localStorage.setItem('userWallet', wallet.toString());
+        
+        // Also update the wallet in the user object
+        if (user) {
+            setUser(prev => ({
+                ...prev,
+                wallet: wallet,
+            }));
+        }
     }, [wallet]);
 
     // Save registered users to localStorage whenever they change
@@ -52,33 +63,51 @@ export function RaceBettingProvider({ children }) {
         if (isInitialized.current) return; // Only run once
         isInitialized.current = true;
 
-        try {
-            // Load registered users first
-            const savedUsers = localStorage.getItem('registeredUsers');
-            if (savedUsers) {
-                const users = JSON.parse(savedUsers);
-                setRegisteredUsers(users);
-                
-                // Then check if there's a currentUser to restore
+        const restoreSession = async () => {
+            try {
+                // Check if there's a saved user session
                 const savedUser = localStorage.getItem('currentUser');
                 if (savedUser) {
                     const user = JSON.parse(savedUser);
-                    // Verify this user still exists in registeredUsers
-                    const userExists = users.some(u => u.username === user.username);
-                    if (userExists) {
+                    
+                    // Verify this user still exists in the backend
+                    try {
+                        const response = await fetch(
+                            `${API_URL}/api/users/username/${user.username}`,
+                            {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                            }
+                        );
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            // Set the fresh user data from backend
+                            setUser(data.data);
+                            setWallet(data.data.wallet || 0);
+                        } else {
+                            // User not found or session invalid
+                            localStorage.removeItem('currentUser');
+                            localStorage.removeItem('userWallet');
+                        }
+                    } catch (err) {
+                        console.error('Error verifying session with backend:', err);
+                        // If backend is unreachable, use cached data
                         setUser(user);
+                        const savedWallet = localStorage.getItem('userWallet');
+                        if (savedWallet) {
+                            setWallet(parseFloat(savedWallet));
+                        }
                     }
                 }
+            } catch (error) {
+                console.error('Error restoring session:', error);
             }
-
-            // Load wallet
-            const savedWallet = localStorage.getItem('userWallet');
-            if (savedWallet) {
-                setWallet(parseFloat(savedWallet));
-            }
-        } catch (error) {
-            console.error('Error loading data from localStorage:', error);
-        }
+        };
+        
+        restoreSession();
     }, []);
 
     // Recalculate driver stats whenever race history changes
@@ -126,7 +155,20 @@ export function RaceBettingProvider({ children }) {
     }, [raceHistory, drivers]);
 
     const updateWallet = (amount) => {
-        setWallet(prev => prev + amount);
+        setWallet(prev => {
+            const newWallet = prev + amount;
+            
+            // Sync wallet to backend if user is logged in
+            if (user?.username) {
+                fetch(`${API_URL}/api/users/username/${user.username}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ wallet: newWallet }),
+                }).catch(err => console.error('Failed to sync wallet:', err));
+            }
+            
+            return newWallet;
+        });
     };
 
     const setWalletDirect = (amount) => {
@@ -249,9 +291,169 @@ export function RaceBettingProvider({ children }) {
                 )
             );
         }
-        // Clear current session but keep registeredUsers and wallet in localStorage
+        // Clear current session from both state and localStorage
         setUser(null);
         setWallet(0);
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('userWallet');
+    };
+
+    // ============= ADMIN FUNCTIONS =============
+
+    // Fetch all users from backend (with status categorization)
+    const getAllUsers = async () => {
+        try {
+            if (!user?.isAdmin) {
+                throw new Error('Admin privileges required');
+            }
+
+            const response = await fetch(
+                `${API_URL}/api/admin/users/active?adminId=${user._id}&teamId=2`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch users');
+            }
+
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                const allUsers = [
+                    ...result.data.active,
+                    ...result.data.suspended,
+                    ...result.data.deleted,
+                ];
+                return allUsers;
+            }
+
+            return [];
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            throw error;
+        }
+    };
+
+    // Suspend a user account
+    const suspendUser = async (userId, adminId) => {
+        try {
+            const response = await fetch(
+                `${API_URL}/api/admin/suspend/${userId}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ adminId }),
+                }
+            );
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to suspend user');
+            }
+
+            const result = await response.json();
+            
+            // Update local state
+            if (result.success) {
+                setRegisteredUsers(prevUsers =>
+                    prevUsers.map(u =>
+                        u._id === userId || u.username === result.data.username
+                            ? { ...u, accountStatus: 'suspended' }
+                            : u
+                    )
+                );
+            }
+
+            return result;
+        } catch (error) {
+            console.error('Error suspending user:', error);
+            throw error;
+        }
+    };
+
+    // Unsuspend a user account
+    const unsuspendUser = async (userId, adminId) => {
+        try {
+            const response = await fetch(
+                `${API_URL}/api/admin/unsuspend/${userId}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ adminId }),
+                }
+            );
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to unsuspend user');
+            }
+
+            const result = await response.json();
+            
+            // Update local state
+            if (result.success) {
+                setRegisteredUsers(prevUsers =>
+                    prevUsers.map(u =>
+                        u._id === userId || u.username === result.data.username
+                            ? { ...u, accountStatus: 'active' }
+                            : u
+                    )
+                );
+            }
+
+            return result;
+        } catch (error) {
+            console.error('Error unsuspending user:', error);
+            throw error;
+        }
+    };
+
+    // Permanently delete a user account (soft delete)
+    const deleteUserPermanently = async (userId, adminId) => {
+        try {
+            const response = await fetch(
+                `${API_URL}/api/admin/delete/${userId}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ adminId }),
+                }
+            );
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to delete user');
+            }
+
+            const result = await response.json();
+            
+            // Update local state
+            if (result.success) {
+                setRegisteredUsers(prevUsers =>
+                    prevUsers.map(u =>
+                        u._id === userId || u.username === result.data.username
+                            ? { ...u, accountStatus: 'deleted' }
+                            : u
+                    )
+                );
+            }
+
+            return result;
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            throw error;
+        }
     };
 
     const value = {
@@ -271,6 +473,11 @@ export function RaceBettingProvider({ children }) {
         loginUser,
         logoutUser,
         deleteUser,
+        // Admin functions
+        getAllUsers,
+        suspendUser,
+        unsuspendUser,
+        deleteUserPermanently,
     };
 
     return (

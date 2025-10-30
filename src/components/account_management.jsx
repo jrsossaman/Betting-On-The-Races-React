@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRaceBetting } from "../context/race_betting_context";
 
 function AccountManagement() {
@@ -14,6 +14,33 @@ function AccountManagement() {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [profilePicture, setProfilePicture] = useState(user?.profilePicture || null);
     const [tempProfilePicture, setTempProfilePicture] = useState(user?.profilePicture || null);
+
+    // Refresh user data when Statistics tab is opened
+    useEffect(() => {
+        if (activeTab === "statistics" && user?.username) {
+            const refreshUser = async () => {
+                try {
+                    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001";
+                    const response = await fetch(
+                        `${apiUrl}/api/users/username/${user.username}`,
+                        {
+                            method: 'GET',
+                            headers: { 'Content-Type': 'application/json' },
+                        }
+                    );
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        setUser(data.data);
+                    }
+                } catch (err) {
+                    console.error('Failed to refresh user data:', err);
+                }
+            };
+            
+            refreshUser();
+        }
+    }, [activeTab]);
 
     const handleEditProfile = () => {
         if (!editedName.trim()) {
@@ -86,9 +113,9 @@ function AccountManagement() {
         setTempProfilePicture(null);
     };
 
-    const totalRacesPlayed = registeredUsers.find(u => u.username === user?.username)?.races || 0;
-    const totalRacesWon = registeredUsers.find(u => u.username === user?.username)?.racesWon || 0;
-    const totalWinnings = registeredUsers.find(u => u.username === user?.username)?.totalWinnings || 0;
+    const totalRacesPlayed = user?.raceCount || 0;
+    const totalRacesWon = user?.raceHistory?.filter(r => r.userWon)?.length || 0;
+    const totalWinnings = user?.totalWinnings || 0;
 
     return (
         <div className="account-management-container">
@@ -110,12 +137,14 @@ function AccountManagement() {
                 >
                     Statistics
                 </button>
-                <button
-                    className={`tab-btn ${activeTab === "allUsers" ? "active" : ""}`}
-                    onClick={() => setActiveTab("allUsers")}
-                >
-                    All Users
-                </button>
+                {user?.isAdmin && (
+                    <button
+                        className={`tab-btn ${activeTab === "allUsers" ? "active" : ""}`}
+                        onClick={() => setActiveTab("allUsers")}
+                    >
+                        All Users
+                    </button>
+                )}
             </div>
 
             <div className="account-content">

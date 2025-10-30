@@ -1,21 +1,20 @@
 const createUser = async (name, username, password, wallet, email, phone) => {
   try {
-    const newUser = { name, username, password, wallet, email, phone };
+    const newUser = { name, username, password, wallet };
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001";
 
     const response = await fetch(
-      "https://unit-4-project-app-24d5eea30b23.herokuapp.com/post/data",
+      `${apiUrl}/api/users`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          team: 2,
-          body: { users: [newUser] }, 
-        }),
+        body: JSON.stringify(newUser),
       }
     );
 
     if (!response.ok) {
-      throw new Error("Failed to create user");
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to create user");
     }
 
     const createdData = await response.json();
