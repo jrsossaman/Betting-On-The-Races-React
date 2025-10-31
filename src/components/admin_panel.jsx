@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRaceBetting } from "../context/race_betting_context";
 
 function AdminPanel() {
   const { user, suspendUser, unsuspendUser, deleteUserPermanently, getAllUsers } = useRaceBetting();
 
-  // All hooks must be called unconditionally before any conditional returns
+  // All hooks must be called unconditionally FIRST, before any logic
   const [activeTab, setActiveTab] = useState("active");
   const [activeUsers, setActiveUsers] = useState([]);
   const [suspendedUsers, setSuspendedUsers] = useState([]);
@@ -16,24 +16,8 @@ function AdminPanel() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
 
-  // Security check: Only allow admins to view this panel
-  if (!user?.isAdmin) {
-    return (
-      <div className="admin-panel-container">
-        <div style={{ color: 'red', padding: '20px', textAlign: 'center' }}>
-          <h2>❌ Access Denied</h2>
-          <p>You do not have permission to access the Admin Control Panel.</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Load users on component mount
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  const loadUsers = async () => {
+  // Define loadUsers with useCallback to memoize it
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
       const users = await getAllUsers();
@@ -49,7 +33,26 @@ function AdminPanel() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getAllUsers]);
+
+  // Load users on component mount - useEffect must come BEFORE any conditional returns
+  useEffect(() => {
+    if (user?.isAdmin) {
+      loadUsers();
+    }
+  }, [loadUsers, user?.isAdmin]);
+
+  // Security check: Only allow admins to view this panel
+  if (!user?.isAdmin) {
+    return (
+      <div className="admin-panel-container">
+        <div style={{ color: 'red', padding: '20px', textAlign: 'center' }}>
+          <h2>❌ Access Denied</h2>
+          <p>You do not have permission to access the Admin Control Panel.</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSuspendUser = async (targetUser) => {
     try {

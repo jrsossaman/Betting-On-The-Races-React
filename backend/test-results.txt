@@ -1,0 +1,36 @@
+
+============================================================
+🧪 API TEST SUITE - Betting on the Races
+============================================================
+
+✅ PASS: Create User - POST /api/users
+✅ PASS: Get User by ID - GET /api/users/:id
+✅ PASS: Get User by Username - GET /api/users/username/:username
+✅ PASS: Get All Users - GET /api/users
+✅ PASS: Update User by Username - PUT /api/users/username/:username
+✅ PASS: Update User by ID - PUT /api/users/:id
+✅ PASS: Add Money - POST /api/add-money/:username
+✅ PASS: Lose Money - POST /api/lose-money/:username
+✅ PASS: Create Driver - POST /api/drivers
+✅ PASS: Get Driver by ID - GET /api/drivers/:id
+✅ PASS: Get All Drivers - GET /api/drivers
+✅ PASS: Update Driver - PUT /api/drivers/:id
+✅ PASS: Create Admin User - POST /api/users (with admin privileges)
+✅ PASS: Get Active Users (Admin) - GET /api/admin/users/active
+✅ PASS: Legacy Get All - GET /get/all
+✅ PASS: Error Handling - Missing Required Fields
+✅ PASS: Error Handling - Insufficient Funds for Lose Money
+✅ PASS: Error Handling - User Not Found
+✅ PASS: Delete User by Username - DELETE /api/users/username/:username
+✅ PASS: Delete User by ID - DELETE /api/users/:id
+✅ PASS: Delete Driver - DELETE /api/drivers/:id
+
+============================================================
+📊 TEST RESULTS
+============================================================
+✅ Passed: 21
+❌ Failed: 0
+📈 Total: 21
+📊 Success Rate: 100.00%
+============================================================
+
