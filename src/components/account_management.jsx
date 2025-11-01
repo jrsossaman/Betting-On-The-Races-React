@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useRaceBetting } from "../context/race_betting_context";
+import updateUser from "../api/update_user.jsx";
+import deleteUser from "../api/delete_user.jsx"
 
 function AccountManagement() {
-    const { user, wallet, registeredUsers, setUser, deleteUser } = useRaceBetting();
+    const { user, wallet, registeredUsers, setUser, delete_user } = useRaceBetting();
     const [activeTab, setActiveTab] = useState("profile");
     const [editMode, setEditMode] = useState(false);
     const [editedName, setEditedName] = useState(user?.name || "");
@@ -15,31 +17,44 @@ function AccountManagement() {
     const [profilePicture, setProfilePicture] = useState(user?.profilePicture || null);
     const [tempProfilePicture, setTempProfilePicture] = useState(user?.profilePicture || null);
 
-    const handleEditProfile = () => {
-        if (!editedName.trim()) {
-            setEditError("Name cannot be empty.");
-            return;
+    const handleEditProfile = async () => {
+        try {
+            if (!editedName.trim()) {
+                setEditError("Name cannot be empty.");
+                return;
+            }
+            if (editedEmail && !editedEmail.includes("@")) {
+                setEditError("Please enter a valid email address.");
+                return;
+            }
+
+            const updates = {
+                name: editedName,
+                email: editedEmail,
+                phone: editedPhone
+            };
+
+            // Call the API to update user
+            await updateUser(user.username, updates);
+
+            // Update local state
+            const updatedUser = {
+                ...user,
+                ...updates,
+                password: user.password,
+                wallet: user.wallet
+            };
+
+            setUser(updatedUser);
+            setProfilePicture(tempProfilePicture);
+            setEditMode(false);
+            setEditSuccess("✅ Profile updated successfully!");
+            setEditError("");
+
+            setTimeout(() => setEditSuccess(""), 2000);
+        } catch (error) {
+            setEditError("Failed to update profile: " + error.message);
         }
-        if (editedEmail && !editedEmail.includes("@")) {
-            setEditError("Please enter a valid email address.");
-            return;
-        }
-
-        const updatedUser = {
-            ...user,
-            name: editedName,
-            email: editedEmail,
-            phone: editedPhone,
-            profilePicture: tempProfilePicture,
-        };
-
-        setUser(updatedUser);
-        setProfilePicture(tempProfilePicture);
-        setEditMode(false);
-        setEditSuccess("✅ Profile updated successfully!");
-        setEditError("");
-
-        setTimeout(() => setEditSuccess(""), 2000);
     };
 
     const handleCancel = () => {
@@ -51,13 +66,18 @@ function AccountManagement() {
         setEditError("");
     };
 
-    const handleDeleteAccount = () => {
-        if (window.confirm("⚠️ WARNING: This will permanently delete your account and all associated data. This action cannot be undone. Are you sure?")) {
-            deleteUser(user?.username);
+    const handleDeleteAccount = async () => {
+        try {
+            // Delete confirmation is now handled by the showDeleteConfirm state
+            await deleteUser(user?.username);
+            // After API delete is successful, update local state
+            setUser(null); // This will trigger logout and redirect
             setEditSuccess("✅ Account deleted successfully. Goodbye!");
             setTimeout(() => {
                 // User will be redirected by the app component when user becomes null
             }, 1500);
+        } catch (error) {
+            setEditError("Failed to delete account: " + error.message);
         }
         setShowDeleteConfirm(false);
     };
